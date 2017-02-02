@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>server.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" media="all" href="../doc-style.css" />
+  <script src="../doc-filelist.js"></script>
+  <script>
+    var relativeDir = "../";
+    var thisFile = "app\\server.js";
+    var defaultSidebar = true;
+  </script>
+  <script src="../doc-script.js"></script>
+
+</head>
+<body>
+  <div id="sidebar_wrapper">
+    <div id="sidebar_switch">
+      <span class="tree">Files</span>
+      <span class="headings">Headings</span>
+    </div>
+    <div id="tree"></div>
+    <div id="headings">
+
+    </div>
+  </div>
+  <div id="sidebar-toggle"></div>
+  <div id="container">
+    <div class="background highlight"></div>
+<table cellpadding="0" cellspacing="0">
+  <tbody>
+    
+      <tr>
+        <td class="docs">
+          <h1>server.js</h1>
+        </td>
+        <td class="code highlight"></td>
+      </tr>
+    
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-1" id="section-1"></a>
+</div>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript"><span class="hljs-comment">/* global __CONFIG__ */</span>
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-2" id="section-2"></a>
+</div>
+<p>NodeJS includes</p>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript"><span class="hljs-keyword">var</span> cluster = <span class="hljs-built_in">require</span>(<span class="hljs-string">'cluster'</span>);
+<span class="hljs-keyword">var</span> http = <span class="hljs-built_in">require</span>(<span class="hljs-string">'http'</span>);
+<span class="hljs-keyword">var</span> https = <span class="hljs-built_in">require</span>(<span class="hljs-string">'https'</span>);
+<span class="hljs-keyword">var</span> fs = <span class="hljs-built_in">require</span>(<span class="hljs-string">'fs'</span>);
+<span class="hljs-keyword">var</span> express = <span class="hljs-built_in">require</span>(<span class="hljs-string">'express'</span>);
+
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-3" id="section-3"></a>
+</div>
+<p>Osm Includes</p>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript"><span class="hljs-keyword">var</span> Config = <span class="hljs-built_in">require</span>(__dirname + <span class="hljs-string">'/config'</span>);
+<span class="hljs-keyword">var</span> Logger = <span class="hljs-built_in">require</span>(__CONFIG__.app_base_path + <span class="hljs-string">'logger'</span>);
+<span class="hljs-keyword">var</span> GetStatus = <span class="hljs-built_in">require</span>(__CONFIG__.app_lib_path + <span class="hljs-string">'status'</span>);
+<span class="hljs-keyword">var</span> Router = <span class="hljs-built_in">require</span>(__CONFIG__.app_lib_path + <span class="hljs-string">'router/router.js'</span>);
+
+<span class="hljs-keyword">var</span> app = express();
+Router.init(app);
+
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-4" id="section-4"></a>
+</div>
+<p>Count the machine's CPUs</p>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript"><span class="hljs-keyword">var</span> cpuCount = <span class="hljs-built_in">require</span>(<span class="hljs-string">'os'</span>).cpus().length;
+
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-5" id="section-5"></a>
+</div>
+<p>The master process - will only be used when on PROD</p>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript"><span class="hljs-keyword">if</span> (Config.express.is_production &amp;&amp; cluster.isMaster &amp;&amp; !__CONFIG__.is_cluster_disabled) {
+
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-6" id="section-6"></a>
+</div>
+<p>Load the cron jobs on the master thread if it's production.</p>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript">  Router.loadCronJobs(app);
+
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-7" id="section-7"></a>
+</div>
+<p>Create a worker for each CPU</p>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript">  <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> i = <span class="hljs-number">0</span>; i &lt; cpuCount; i += <span class="hljs-number">1</span>) {
+    cluster.fork();
+  }
+
+  cluster.on(<span class="hljs-string">'exit'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+    cluster.fork();
+  });
+
+} <span class="hljs-keyword">else</span> {
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-8" id="section-8"></a>
+</div>
+<p>A worker process</p>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript">  app.use(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">req, res, next</span>) </span>{
+    res.setHeader(<span class="hljs-string">'X-Powered-By'</span>, <span class="hljs-string">'Emanate Wireless'</span>);
+    res.performanceInfo = {};
+    res.performanceInfo.startTimestamp = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Date</span>().getTime();
+    <span class="hljs-keyword">if</span> (__CONFIG__.is_https) {
+      <span class="hljs-keyword">if</span> (!req.secure) {
+        res.redirect(__CONFIG__.app_http_base_url.replace(<span class="hljs-regexp">/\/+$/</span>, <span class="hljs-string">''</span>) + req.url);
+      } <span class="hljs-keyword">else</span> {
+        next();
+      }
+    } <span class="hljs-keyword">else</span> {
+      next();
+    }
+  });
+
+  app.use(Router.parseBodyType);
+
+  app.use(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">err, req, res, next</span>) </span>{
+    <span class="hljs-keyword">if</span> (err) {
+      res.set(<span class="hljs-string">'Connection'</span>, <span class="hljs-string">'close'</span>);
+      res.status(GetStatus(<span class="hljs-string">'badRequest'</span>)).json({
+        <span class="hljs-attr">status</span>: <span class="hljs-string">'fail'</span>,
+        <span class="hljs-attr">message</span>: <span class="hljs-string">'JSON sent is invalid.'</span>
+      });
+    } <span class="hljs-keyword">else</span> {
+      next();
+    }
+  });  
+
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-9" id="section-9"></a>
+</div>
+<p>Bind the api routes.</p>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript">  Router.loadRoutes(app);
+
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-10" id="section-10"></a>
+</div>
+<p>Load the cron jobs on the child thread if it's NOT production or clustering is disabled</p>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript">  <span class="hljs-keyword">if</span> (!Config.express.is_production || __CONFIG__.is_cluster_disabled) {
+    Router.loadCronJobs(app);
+  }
+  
+  Router.writeServerStartupLogs();
+
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-11" id="section-11"></a>
+</div>
+<p>404 error</p>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript">  app.use(<span class="hljs-string">'/'</span>, Router.notFound);
+  
+  http.createServer(app).listen(Config.express.port, Config.express.ip, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">error</span>) </span>{
+    <span class="hljs-keyword">if</span> (error) {
+      Logger.logAppErrors(error);
+      process.exit(<span class="hljs-number">10</span>);
+    }
+    Logger.logAppInfo(<span class="hljs-string">'Express is listening on http://'</span> + Config.express.ip + <span class="hljs-string">':'</span> + Config.express.port);
+  });
+  
+  <span class="hljs-keyword">if</span>(__CONFIG__.is_https) {
+    <span class="hljs-keyword">var</span> sslConfig = {
+      <span class="hljs-string">'pfx'</span>: fs.readFileSync(__CONFIG__.app_base_path + __CONFIG__.ssl_config.ssl_cert),
+      <span class="hljs-string">'passphrase'</span>: __CONFIG__.ssl_config.passphrase
+    };
+
+    https.createServer(sslConfig, app).listen(Config.express.httpsPort, Config.express.ip, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">error</span>) </span>{
+      <span class="hljs-keyword">if</span> (error) {
+        Logger.logAppErrors(error);
+        process.exit(<span class="hljs-number">10</span>);
+      }
+      Logger.logAppInfo(<span class="hljs-string">'Express is listening on https://'</span> + Config.express.ip + <span class="hljs-string">':'</span> + Config.express.httpsPort);
+    }); 
+  }  
+}
+
+process.on(<span class="hljs-string">'uncaughtException'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">err</span>) </span>{
+  <span class="hljs-keyword">try</span> {
+    <span class="hljs-built_in">console</span>.log(err);
+    Logger.logUncaughtError(err);
+  } <span class="hljs-keyword">catch</span> (e) {
+    <span class="hljs-built_in">console</span>.log(e);
+  }
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-12" id="section-12"></a>
+</div>
+<p>Eventually write code to send a mail.</p>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript">  process.exit(<span class="hljs-number">1</span>);
+});
+</pre>
+        </td>
+      </tr>
+    
+  </tbody>
+</table>
+
+  </div>
+</body>
+</html>

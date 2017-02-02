@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>mariadb.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" media="all" href="../../../doc-style.css" />
+  <script src="../../../doc-filelist.js"></script>
+  <script>
+    var relativeDir = "../../../";
+    var thisFile = "app\\lib\\db-connector\\mariadb.js";
+    var defaultSidebar = true;
+  </script>
+  <script src="../../../doc-script.js"></script>
+
+</head>
+<body>
+  <div id="sidebar_wrapper">
+    <div id="sidebar_switch">
+      <span class="tree">Files</span>
+      <span class="headings">Headings</span>
+    </div>
+    <div id="tree"></div>
+    <div id="headings">
+
+    </div>
+  </div>
+  <div id="sidebar-toggle"></div>
+  <div id="container">
+    <div class="background highlight"></div>
+<table cellpadding="0" cellspacing="0">
+  <tbody>
+    
+      <tr>
+        <td class="docs">
+          <h1>mariadb.js</h1>
+        </td>
+        <td class="code highlight"></td>
+      </tr>
+    
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-1" id="section-1"></a>
+</div>
+<div class="dox">
+<div class="summary">
+<p>A db class to be used by other models. Uses the following -
+https://github.com/mscdex/node-mariasql DEPENDENCIES - node-mariasql -
+app-error.js</p>
+</div>
+<div class="body">
+</div>
+</div>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript"><span class="hljs-meta">'use strict'</span>;
+
+<span class="hljs-keyword">var</span> mSQLClient = <span class="hljs-built_in">require</span>(<span class="hljs-string">'mariasql'</span>);
+<span class="hljs-keyword">var</span> uuid = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node-uuid'</span>);
+
+<span class="hljs-keyword">var</span> TransactionPool = {};
+<span class="hljs-keyword">var</span> AppError = <span class="hljs-built_in">require</span>(__CONFIG__.app_lib_path + <span class="hljs-string">'app-error'</span>);
+<span class="hljs-keyword">var</span> GetPool = <span class="hljs-built_in">require</span>(__CONFIG__.app_lib_path + <span class="hljs-string">'db-connector/pools/mariadb-pool'</span>);
+
+<span class="hljs-keyword">var</span> defaultMsg = {
+  <span class="hljs-attr">errorDbConn</span>: <span class="hljs-string">'There was an error while communicating with the database.'</span>,
+  <span class="hljs-attr">queryExecution</span>: <span class="hljs-string">'There was an error while executing the query.'</span>
+};
+
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-2" id="section-2"></a>
+</div>
+<div class="dox">
+<div class="summary">
+<p>The base MariaDb constructor.</p>
+</div>
+<div class="body">
+</div>
+<div class="details">
+<div class="dox_tag_title">Params</div>
+<div class="dox_tag_detail">
+<span class="dox_tag_name">dbConfig</span>
+<span>Database configurations
+</span>
+</div>
+<div class="dox_tag_detail">
+<span class="dox_tag_name">customMsgs</span>
+<span>Use this parameter to override the custom messages used.
+</span>
+</div>
+</div>
+</div>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">MariaDB</span>(<span class="hljs-params">dbConfig, customMsgs</span>) </span>{
+  <span class="hljs-keyword">this</span>.config = modifyConfigObj(dbConfig);
+  <span class="hljs-keyword">this</span>.pool = GetPool(<span class="hljs-keyword">this</span>.config);
+  <span class="hljs-keyword">this</span>.msgStrings = defaultMsg;
+  <span class="hljs-keyword">if</span> (customMsgs !== <span class="hljs-literal">undefined</span> &amp;&amp; customMsgs.errorDbConn &amp;&amp; customMsgs.queryExecution) {
+    <span class="hljs-keyword">this</span>.msgStrings = customMsgs;
+  }
+}
+
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-3" id="section-3"></a>
+</div>
+<div class="dox">
+<div class="summary">
+<p>Use this for INSERT, UPDATE, DELETE queries</p>
+</div>
+<div class="body">
+</div>
+<div class="details">
+<div class="dox_tag_title">Params</div>
+<div class="dox_tag_detail">
+<span class="dox_tag_name">objQuery</span>
+<span>Contains the following the properties - query - The SQL Query. data -
+Data to be sent for the query. cb - Callback method. closeConn -
+Close the connection automatically. useArray - Respond with an array
+rather than an object.
+</span>
+</div>
+</div>
+</div>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript">MariaDB.prototype.query = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">objQuery, cb</span>) </span>{
+  objQuery = getDefaultValues(objQuery);
+  runQuery(<span class="hljs-keyword">this</span>, <span class="hljs-literal">false</span>, objQuery.query, objQuery.data, cb, objQuery.closeConn,
+    objQuery.useArray, objQuery.transactionID, objQuery.isMultiple);
+};
+
+MariaDB.prototype.getResult = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">objQuery, cb</span>) </span>{
+  objQuery = getDefaultValues(objQuery);
+  runQuery(<span class="hljs-keyword">this</span>, <span class="hljs-literal">true</span>, objQuery.query, objQuery.data, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">err, data</span>) </span>{
+    <span class="hljs-keyword">if</span> (err) {
+      cb(err, <span class="hljs-literal">null</span>);
+      <span class="hljs-keyword">return</span>;
+    }
+    <span class="hljs-keyword">var</span> response = {};
+    <span class="hljs-keyword">if</span> (data.length !== <span class="hljs-number">0</span>) {
+      response = data[<span class="hljs-number">0</span>];
+    }
+    cb(<span class="hljs-literal">null</span>, response);
+  }, objQuery.closeConn, objQuery.useArray, objQuery.transactionID, objQuery.isMultiple);
+};
+
+MariaDB.prototype.getResults = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">objQuery, cb</span>) </span>{
+  objQuery = getDefaultValues(objQuery);
+  runQuery(<span class="hljs-keyword">this</span>, <span class="hljs-literal">true</span>, objQuery.query, objQuery.data, cb, objQuery.closeConn,
+    objQuery.useArray, objQuery.transactionID, objQuery.isMultiple);
+};
+
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-4" id="section-4"></a>
+</div>
+<div class="dox">
+<div class="summary">
+<p>Returns the first value from the result set or null</p>
+</div>
+<div class="body">
+</div>
+<div class="details">
+<div class="dox_tag_title">Params</div>
+<div class="dox_tag_detail">
+<span class="dox_tag_name">objQuery</span>
+<span>Object containing query, parameters etc.
+</span>
+</div>
+</div>
+</div>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript">MariaDB.prototype.getValue = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">objQuery, cb</span>) </span>{
+  objQuery = getDefaultValues(objQuery);
+  objQuery.useArray = <span class="hljs-literal">true</span>;
+  runQuery(<span class="hljs-keyword">this</span>, <span class="hljs-literal">true</span>, objQuery.query, objQuery.data, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">err, data</span>) </span>{
+    <span class="hljs-keyword">if</span> (err) {
+      cb(err, <span class="hljs-literal">null</span>);
+      <span class="hljs-keyword">return</span>;
+    }
+    <span class="hljs-keyword">var</span> response = <span class="hljs-literal">null</span>;
+    <span class="hljs-keyword">if</span> (data.length !== <span class="hljs-number">0</span> &amp;&amp; data[<span class="hljs-number">0</span>].length !== <span class="hljs-number">0</span>) {
+      response = data[<span class="hljs-number">0</span>][<span class="hljs-number">0</span>];
+    }
+    cb(<span class="hljs-literal">null</span>, response);
+  }, objQuery.closeConn, objQuery.useArray, objQuery.transactionID, objQuery.isMultiple);
+};
+
+MariaDB.prototype.beginTransaction = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">cb</span>) </span>{
+  <span class="hljs-keyword">var</span> transactionID = uuid.v4();
+  <span class="hljs-keyword">var</span> that = <span class="hljs-keyword">this</span>;
+  <span class="hljs-keyword">this</span>.pool.acquire(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">err, client</span>) </span>{
+    <span class="hljs-keyword">if</span> (err) {
+      <span class="hljs-keyword">return</span> cb(err);
+    }
+    TransactionPool[transactionID] = client;
+    client.query(<span class="hljs-string">'START TRANSACTION;'</span>).on(<span class="hljs-string">'result'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{}).on(<span class="hljs-string">'end'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+      cb(<span class="hljs-literal">null</span>, transactionID);
+    }).on(<span class="hljs-string">'error'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">err</span>) </span>{
+      destroyTransactionClient(that, transactionID);
+      cb(err);
+    });
+  });
+};
+
+MariaDB.prototype.commitTransaction = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">transactionID, cb</span>) </span>{
+  <span class="hljs-keyword">var</span> client = TransactionPool[transactionID];
+  <span class="hljs-keyword">var</span> that = <span class="hljs-keyword">this</span>;
+  <span class="hljs-keyword">if</span> (!client) {
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-5" id="section-5"></a>
+</div>
+<p>TODO : Change this...</p>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript">    <span class="hljs-keyword">return</span> cb(<span class="hljs-keyword">new</span> AppError(<span class="hljs-number">500</span>, <span class="hljs-string">'Invalid transaction ID while committing'</span>, {
+      <span class="hljs-attr">transactionID</span>: <span class="hljs-string">'Invalid transaction ID - '</span> + transactionID
+    }));
+  }
+  client.query(<span class="hljs-string">'COMMIT;'</span>).on(<span class="hljs-string">'result'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">res</span>) </span>{
+    res.on(<span class="hljs-string">'error'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+      <span class="hljs-keyword">this</span>.rollbackTransaction(transactionID, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">err</span>) </span>{
+        <span class="hljs-keyword">return</span> cb(err);
+      });
+    });
+  }).on(<span class="hljs-string">'error'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">err</span>) </span>{
+    <span class="hljs-keyword">this</span>.rollbackTransaction(transactionID, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">tErr</span>) </span>{
+      <span class="hljs-keyword">if</span> (tErr) {
+        <span class="hljs-keyword">return</span> cb({
+          <span class="hljs-attr">transaction</span>: tErr,
+          <span class="hljs-attr">error</span>: err
+        });
+      }
+      <span class="hljs-keyword">return</span> cb(err);
+    });
+  }).on(<span class="hljs-string">'end'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+    destroyTransactionClient(that, transactionID);
+    cb(<span class="hljs-literal">null</span>);
+  });
+};
+
+MariaDB.prototype.rollbackTransaction = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">transactionID, cb</span>) </span>{
+  <span class="hljs-keyword">var</span> client = TransactionPool[transactionID];
+  <span class="hljs-keyword">var</span> that = <span class="hljs-keyword">this</span>;
+  <span class="hljs-keyword">if</span> (client) {
+    client.query(<span class="hljs-string">'ROLLBACK;'</span>).on(<span class="hljs-string">'result'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">res</span>) </span>{
+      res.on(<span class="hljs-string">'error'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">err</span>) </span>{
+        destroyTransactionClient(that, transactionID);
+        <span class="hljs-keyword">return</span> cb(err);
+      });
+    }).on(<span class="hljs-string">'error'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">err</span>) </span>{
+      destroyTransactionClient(that, transactionID);
+      <span class="hljs-keyword">return</span> cb(err);
+    }).on(<span class="hljs-string">'end'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+      destroyTransactionClient(that, transactionID);
+      <span class="hljs-keyword">return</span> cb(<span class="hljs-literal">null</span>);
+    });
+  }
+  destroyTransactionClient(that, transactionID);
+};
+
+MariaDB.prototype.queries = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">objQuery, cb</span>) </span>{
+  objQuery = getDefaultValues(objQuery);
+  runQuery(<span class="hljs-keyword">this</span>, <span class="hljs-literal">true</span>, objQuery.query, objQuery.data, cb, objQuery.closeConn,
+    objQuery.useArray, objQuery.transactionID, objQuery.isMultiple);
+};
+
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">destroyTransactionClient</span>(<span class="hljs-params">objMaria, transactionID</span>) </span>{
+  <span class="hljs-keyword">if</span> (!TransactionPool[transactionID]) {
+    <span class="hljs-keyword">return</span>;
+  }
+  <span class="hljs-keyword">var</span> clientObj = TransactionPool[transactionID];
+  objMaria.pool.release(clientObj);
+  <span class="hljs-keyword">delete</span> TransactionPool[transactionID];
+}
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">getDefaultValues</span>(<span class="hljs-params">objQuery</span>) </span>{
+  <span class="hljs-keyword">if</span> (objQuery.closeConn === <span class="hljs-literal">undefined</span>) {
+    objQuery.closeConn = <span class="hljs-literal">true</span>;
+  }
+  <span class="hljs-keyword">if</span> (objQuery.useArray === <span class="hljs-literal">undefined</span>) {
+    objQuery.useArray = <span class="hljs-literal">false</span>;
+  }
+  <span class="hljs-keyword">if</span> (objQuery.transactionID === <span class="hljs-literal">undefined</span>) {
+    objQuery.transactionID = <span class="hljs-literal">false</span>;
+  }
+  <span class="hljs-keyword">if</span> (objQuery.isMultiple === <span class="hljs-literal">undefined</span>) {
+    objQuery.isMultiple = <span class="hljs-literal">false</span>;
+  }
+  <span class="hljs-keyword">return</span> objQuery;
+}
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">runQuery</span>(<span class="hljs-params">objMaria, isSelect, query, data, cb, closeConn, useArray, transactionID, isMultiple</span>) </span>{
+  <span class="hljs-keyword">var</span> hadError = <span class="hljs-literal">false</span>;
+  <span class="hljs-keyword">var</span> response = [];
+  <span class="hljs-keyword">var</span> clientObj = <span class="hljs-literal">null</span>;
+  <span class="hljs-keyword">var</span> qCnt = <span class="hljs-number">0</span>;
+
+  <span class="hljs-keyword">if</span> (transactionID) {
+    clientObj = TransactionPool[transactionID];
+    runQueryWithClient();
+  } <span class="hljs-keyword">else</span> {
+    objMaria.pool.acquire(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">err, client</span>) </span>{
+      <span class="hljs-keyword">if</span> (err) {
+        <span class="hljs-keyword">return</span> cb(<span class="hljs-keyword">new</span> AppError(err, <span class="hljs-string">'There was an error while acquiring the connection'</span>, {}));
+
+      }
+      clientObj = client;
+      runQueryWithClient();
+    });
+  }
+
+  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">runQueryWithClient</span>(<span class="hljs-params"></span>) </span>{
+    <span class="hljs-keyword">try</span> {
+      clientObj.query(query, data, useArray).on(<span class="hljs-string">'result'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">res</span>) </span>{
+        <span class="hljs-keyword">if</span> (isMultiple) {
+          cbMultipleResultQuery(res);
+        } <span class="hljs-keyword">else</span> {
+          cbResultQuery(res);
+        }
+      }).on(<span class="hljs-string">'end'</span>, cbEndQuery).on(<span class="hljs-string">'error'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">err</span>) </span>{
+        <span class="hljs-keyword">if</span> (!isMultiple) {
+          <span class="hljs-keyword">return</span>;
+        }
+        response = initMultipleResObj(response, qCnt);
+        response[qCnt].err = err;
+        <span class="hljs-keyword">return</span> cb(<span class="hljs-keyword">new</span> AppError(err, objMaria.msgStrings.queryExecution));
+      });
+    } <span class="hljs-keyword">catch</span> (e) {
+      <span class="hljs-keyword">if</span> (transactionID) {
+        destroyTransactionClient(objMaria, transactionID);
+      } <span class="hljs-keyword">else</span> {
+        objMaria.pool.release(clientObj);
+      }
+      cb(<span class="hljs-keyword">new</span> AppError(e, objMaria.msgStrings.queryExecution, {}));
+    }
+  }
+
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-6" id="section-6"></a>
+</div>
+<p>Processes single query.</p>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript">  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">cbResultQuery</span>(<span class="hljs-params">res</span>) </span>{
+    <span class="hljs-keyword">if</span> (isSelect) {
+      res.on(<span class="hljs-string">'row'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">row</span>) </span>{
+        response.push(row);
+      });
+    }
+    res.on(<span class="hljs-string">'end'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">info</span>) </span>{
+      <span class="hljs-keyword">if</span> (!isSelect) {
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-7" id="section-7"></a>
+</div>
+<p>Not a select statement;</p>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript">        cb(<span class="hljs-literal">null</span>, info);
+      }
+    });
+    res.on(<span class="hljs-string">'error'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">err</span>) </span>{
+      handleError(err);
+    });
+  }
+
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-8" id="section-8"></a>
+</div>
+<p>Processes multiple result query.</p>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript">  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">cbMultipleResultQuery</span>(<span class="hljs-params">res</span>) </span>{
+    response = initMultipleResObj(response, qCnt);
+    res.on(<span class="hljs-string">'row'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">row</span>) </span>{
+      response[qCnt].data.push(row);
+    });
+
+    res.on(<span class="hljs-string">'error'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">err</span>) </span>{
+      res.abort();
+      handleError(err);
+    });
+
+    res.on(<span class="hljs-string">'end'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">info</span>) </span>{
+      <span class="hljs-keyword">if</span> (!hadError) {
+        response[qCnt].info = info;
+        ++qCnt;
+      }
+    });
+  }
+
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-9" id="section-9"></a>
+</div>
+<p>Called at the end of the query...</p>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript">  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">cbEndQuery</span>(<span class="hljs-params"></span>) </span>{
+    <span class="hljs-keyword">if</span> (closeConn &amp;&amp; !transactionID) {
+      objMaria.pool.release(clientObj);
+    }
+    <span class="hljs-keyword">if</span> (!hadError) {
+      <span class="hljs-keyword">if</span> (isMultiple) {
+        <span class="hljs-keyword">return</span> cb(<span class="hljs-literal">null</span>, response);
+      } <span class="hljs-keyword">else</span> {
+        <span class="hljs-keyword">if</span> (isSelect) {
+          cb(<span class="hljs-literal">null</span>, response);
+        }
+      }
+    }
+  }
+
+  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">handleError</span>(<span class="hljs-params">err</span>) </span>{
+    hadError = <span class="hljs-literal">true</span>;
+    cb(<span class="hljs-keyword">new</span> AppError(err, objMaria.msgStrings.queryExecution, {}));
+    <span class="hljs-keyword">if</span> (closeConn) {
+      objMaria.pool.release(clientObj);
+    }
+  }
+}
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">initMultipleResObj</span>(<span class="hljs-params">response, qCnt</span>) </span>{
+  <span class="hljs-keyword">if</span> (response[qCnt]) {
+    <span class="hljs-keyword">return</span> response;
+  }
+  response[qCnt] = {};
+  response[qCnt].data = [];
+  response[qCnt].info = {};
+  response[qCnt].err = <span class="hljs-literal">false</span>;
+  <span class="hljs-keyword">return</span> response;
+}
+
+
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-10" id="section-10"></a>
+</div>
+<div class="dox">
+<div class="summary">
+<p>This method is called by the Pooling handler.</p>
+</div>
+<div class="body">
+</div>
+</div>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">modifyConfigObj</span>(<span class="hljs-params">dbConfig</span>) </span>{
+  dbConfig.create = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">callback</span>) </span>{
+    <span class="hljs-keyword">var</span> client = <span class="hljs-keyword">new</span> mSQLClient();
+    client.connect(dbConfig);
+    client.on(<span class="hljs-string">'error'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">err</span>) </span>{
+      callback(err, <span class="hljs-literal">null</span>);
+    });
+    client.on(<span class="hljs-string">'connect'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+      callback(<span class="hljs-literal">null</span>, client);
+    });
+  };
+
+  dbConfig.destroy = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">client</span>) </span>{
+    client.end();
+  };
+
+  <span class="hljs-keyword">return</span> dbConfig;
+}
+
+<span class="hljs-built_in">module</span>.exports = MariaDB;
+
+</pre>
+        </td>
+      </tr>
+    
+  </tbody>
+</table>
+
+  </div>
+</body>
+</html>

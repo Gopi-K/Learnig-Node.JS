@@ -1,0 +1,14 @@
+{
+	"insert": {
+		"shop-err-empty": "Error occured. You should pass the values to insert.",
+		"shop-err-wrong-datatypes": "Error occured. Please check the datatype of values you have passed"
+	},
+	"remove": {
+		"shop-err-empty": "Error occured. You should pass the necessary values to remove.",
+		"shop-err-wrong-datatypes": "Error occured. Please check the datatype of values you have passed"
+	},
+	"udate": {
+		"shop-err-empty": "Error occured. You should pass the necessary values to update.",
+		"shop-err-wrong-datatypes": "Error occured. Please check the datatype of values you have passed"
+	}
+}

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>db-config.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" media="all" href="../doc-style.css" />
+  <script src="../doc-filelist.js"></script>
+  <script>
+    var relativeDir = "../";
+    var thisFile = "app\\db-config.js";
+    var defaultSidebar = true;
+  </script>
+  <script src="../doc-script.js"></script>
+
+</head>
+<body>
+  <div id="sidebar_wrapper">
+    <div id="sidebar_switch">
+      <span class="tree">Files</span>
+      <span class="headings">Headings</span>
+    </div>
+    <div id="tree"></div>
+    <div id="headings">
+
+    </div>
+  </div>
+  <div id="sidebar-toggle"></div>
+  <div id="container">
+    <div class="background highlight"></div>
+<table cellpadding="0" cellspacing="0">
+  <tbody>
+    
+      <tr>
+        <td class="docs">
+          <h1>db-config.js</h1>
+        </td>
+        <td class="code highlight"></td>
+      </tr>
+    
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-1" id="section-1"></a>
+</div>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript"><span class="hljs-keyword">var</span> os = <span class="hljs-built_in">require</span>(<span class="hljs-string">'os'</span>);
+
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-2" id="section-2"></a>
+</div>
+<p>get the environment variable settings</p>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript"><span class="hljs-keyword">var</span> mariadbHost = process.env.EMANATE_MARIADB_HOST || <span class="hljs-string">'127.0.0.1'</span>;
+<span class="hljs-keyword">var</span> mariadbUser = process.env.EMANATE_MARIADB_USER || <span class="hljs-string">'root'</span>;
+<span class="hljs-keyword">var</span> mariadbPassword = process.env.EMANATE_MARIADB_PASSWORD || <span class="hljs-string">'Change123'</span>;
+<span class="hljs-keyword">var</span> mariadbDatabase = process.env.EMANATE_MARIADB_DATABASE || <span class="hljs-string">'shopping_cart'</span>;
+
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-3" id="section-3"></a>
+</div>
+<p>define the database configuration</p>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript"><span class="hljs-keyword">var</span> dbConfig = {
+  <span class="hljs-string">'mariadb'</span>: {
+    <span class="hljs-attr">name</span>: <span class="hljs-string">'mariadb'</span>,
+    <span class="hljs-attr">maxConn</span>: <span class="hljs-number">40</span>,
+    <span class="hljs-attr">minConn</span>: <span class="hljs-number">20</span>,
+    <span class="hljs-attr">idleTimeout</span>: <span class="hljs-number">30000</span>,
+    <span class="hljs-attr">host</span>: mariadbHost,
+    <span class="hljs-attr">user</span>: mariadbUser,
+    <span class="hljs-attr">password</span>: mariadbPassword,
+    <span class="hljs-attr">db</span>: mariadbDatabase,
+    <span class="hljs-attr">connTimeout</span>: <span class="hljs-number">15</span>,
+    <span class="hljs-attr">multiStatements</span>: <span class="hljs-literal">true</span>
+  }
+};
+
+<span class="hljs-built_in">module</span>.exports = dbConfig;
+
+</pre>
+        </td>
+      </tr>
+    
+  </tbody>
+</table>
+
+  </div>
+</body>
+</html>

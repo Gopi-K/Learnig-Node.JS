@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>mailer.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" media="all" href="../../../doc-style.css" />
+  <script src="../../../doc-filelist.js"></script>
+  <script>
+    var relativeDir = "../../../";
+    var thisFile = "app\\lib\\helpers\\mailer.js";
+    var defaultSidebar = true;
+  </script>
+  <script src="../../../doc-script.js"></script>
+
+</head>
+<body>
+  <div id="sidebar_wrapper">
+    <div id="sidebar_switch">
+      <span class="tree">Files</span>
+      <span class="headings">Headings</span>
+    </div>
+    <div id="tree"></div>
+    <div id="headings">
+
+    </div>
+  </div>
+  <div id="sidebar-toggle"></div>
+  <div id="container">
+    <div class="background highlight"></div>
+<table cellpadding="0" cellspacing="0">
+  <tbody>
+    
+      <tr>
+        <td class="docs">
+          <h1>mailer.js</h1>
+        </td>
+        <td class="code highlight"></td>
+      </tr>
+    
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-1" id="section-1"></a>
+</div>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript"><span class="hljs-keyword">var</span> nodemailer = <span class="hljs-built_in">require</span>(<span class="hljs-string">'nodemailer'</span>);
+<span class="hljs-keyword">var</span> smtpTransport = <span class="hljs-built_in">require</span>(<span class="hljs-string">'nodemailer-smtp-transport'</span>);
+<span class="hljs-keyword">var</span> path = <span class="hljs-built_in">require</span>(<span class="hljs-string">'path'</span>);
+<span class="hljs-keyword">var</span> templatesDir = path.join(__CONFIG__.app_base_path, <span class="hljs-string">'templates'</span>);
+<span class="hljs-keyword">var</span> emailTemplates = <span class="hljs-built_in">require</span>(<span class="hljs-string">'email-templates'</span>);
+<span class="hljs-keyword">var</span> <span class="hljs-keyword">async</span> = <span class="hljs-built_in">require</span>(<span class="hljs-string">'async'</span>);
+<span class="hljs-keyword">var</span> fs = <span class="hljs-built_in">require</span>(<span class="hljs-string">'fs'</span>);
+
+<span class="hljs-keyword">var</span> AppError = <span class="hljs-built_in">require</span>(__CONFIG__.app_base_path + <span class="hljs-string">'lib/app-error'</span>);
+<span class="hljs-keyword">var</span> GetStatus = <span class="hljs-built_in">require</span>(__CONFIG__.app_base_path + <span class="hljs-string">'lib/status'</span>);
+
+<span class="hljs-keyword">var</span> transport = nodemailer.createTransport(smtpTransport({
+  <span class="hljs-string">'host'</span>: __CONFIG__.email.server,
+  <span class="hljs-string">'port'</span>: __CONFIG__.email.port,
+  <span class="hljs-string">'auth'</span>: {
+    <span class="hljs-attr">user</span>: __CONFIG__.email.username,
+    <span class="hljs-attr">pass</span>: __CONFIG__.email.password
+  },
+  <span class="hljs-attr">maxConnections</span>: __CONFIG__.email.maxCon,
+  <span class="hljs-attr">maxMessages</span>: __CONFIG__.email.maxMsgPerCon,
+  <span class="hljs-attr">secure</span>: __CONFIG__.email.secure
+}));
+
+<span class="hljs-keyword">var</span> mailer = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-2" id="section-2"></a>
+</div>
+<div class="dox">
+<div class="summary">
+<p>Public : This is the primary method that is called
+from outside to send the mails.</p>
+</div>
+<div class="body">
+</div>
+</div>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript">  <span class="hljs-keyword">var</span> sendMails = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">arrObjEmails, cb</span>) </span>{
+    <span class="hljs-keyword">var</span> allEmailsLen = arrObjEmails.length;
+    <span class="hljs-keyword">if</span> (!allEmailsLen) {
+      <span class="hljs-keyword">return</span>;
+    }
+    <span class="hljs-keyword">var</span> errMails = [];
+    <span class="hljs-keyword">var</span> succMails = [];
+    <span class="hljs-keyword">var</span> processResponse = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">isSuccess, respObj</span>) </span>{
+      <span class="hljs-keyword">if</span> (isSuccess) {
+        succMails.push(respObj);
+      } <span class="hljs-keyword">else</span> {
+        errMails.push(respObj);
+      }
+      <span class="hljs-keyword">if</span> (allEmailsLen &lt;= (errMails.length + succMails.length)) {
+        cb(<span class="hljs-literal">null</span>, {
+          <span class="hljs-attr">success</span>: succMails,
+          <span class="hljs-attr">error</span>: errMails
+        });
+      }
+    };
+
+    emailTemplates(templatesDir, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">err, template</span>) </span>{
+      <span class="hljs-keyword">if</span> (err) {
+        <span class="hljs-keyword">return</span> cb(<span class="hljs-keyword">new</span> AppError(getStatus(<span class="hljs-string">'internalError'</span>),
+          <span class="hljs-string">'There was an error while reading the templates'</span>, {}));
+      }
+      <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> i = <span class="hljs-number">0</span>; i &lt; allEmailsLen; ++i) {
+        processAttachments(arrObjEmails[i], processAttachmentCb);
+      }
+
+      <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">processAttachmentCb</span>(<span class="hljs-params">err, mailObj</span>) </span>{
+        <span class="hljs-keyword">if</span> (err) {
+          <span class="hljs-keyword">return</span> processResponse(<span class="hljs-literal">false</span>, {
+            <span class="hljs-string">'id'</span>: mailObj.emailID,
+            <span class="hljs-string">'error'</span>: <span class="hljs-string">'Error while performing file system checks.'</span>
+          });
+        }
+        <span class="hljs-keyword">if</span> (!mailObj.templateName) {
+          sendNormalMail(mailObj, processResponse);
+        } <span class="hljs-keyword">else</span> {
+          sendTemplateMail(mailObj, template, processResponse);
+        }
+      }
+    });
+  };
+
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-3" id="section-3"></a>
+</div>
+<div class="dox">
+<div class="summary">
+<p>Sends a mail that has a template attached.</p>
+</div>
+<div class="body">
+</div>
+</div>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript">  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">sendTemplateMail</span>(<span class="hljs-params">mailObj, template, cb</span>) </span>{
+    <span class="hljs-keyword">if</span> (!mailObj.templateName) {
+      <span class="hljs-keyword">return</span> cb(<span class="hljs-literal">false</span>, {
+        <span class="hljs-string">'id'</span>: mailObj.emailID,
+        <span class="hljs-string">'error'</span>: <span class="hljs-string">'No template provided'</span>
+      });
+    }
+    template(mailObj.templateName, <span class="hljs-built_in">JSON</span>.parse(mailObj.data), <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">err,
+      html, text</span>) </span>{
+      <span class="hljs-keyword">if</span> (err) {
+        <span class="hljs-keyword">return</span> cb(<span class="hljs-literal">false</span>, {
+          <span class="hljs-string">'id'</span>: mailObj.emailID,
+          <span class="hljs-string">'error'</span>: <span class="hljs-string">'Couldn\'t load the template file - '</span> + mailObj.templateName
+        });
+      }
+      transport.sendMail({
+        <span class="hljs-attr">to</span>: mailObj.toEmail,
+        <span class="hljs-attr">cc</span>: mailObj.ccEmail,
+        <span class="hljs-attr">bcc</span>: mailObj.bccEmail,
+        <span class="hljs-attr">text</span>: text,
+        <span class="hljs-attr">html</span>: html,
+        <span class="hljs-attr">subject</span>: mailObj.subject,
+        <span class="hljs-attr">from</span>: mailObj.fromEmail,
+        <span class="hljs-attr">attachments</span>: mailObj.attachments
+      }, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">err, responseStatus</span>) </span>{
+        <span class="hljs-keyword">if</span> (err) {
+          <span class="hljs-keyword">return</span> cb(<span class="hljs-literal">false</span>, {
+            <span class="hljs-string">'id'</span>: mailObj.emailID,
+            <span class="hljs-string">'error'</span>: <span class="hljs-built_in">JSON</span>.stringify(err)
+          });
+        } <span class="hljs-keyword">else</span> {
+          <span class="hljs-keyword">return</span> cb(<span class="hljs-literal">true</span>, {
+            <span class="hljs-string">'id'</span>: mailObj.emailID,
+            <span class="hljs-string">'error'</span>: responseStatus.message
+          });
+        }
+      });
+    });
+  }
+
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-4" id="section-4"></a>
+</div>
+<div class="dox">
+<div class="summary">
+<p>Sends a mail that does not have a template set.</p>
+</div>
+<div class="body">
+</div>
+</div>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript">  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">sendNormalMail</span>(<span class="hljs-params">mailObj, cb</span>) </span>{
+    <span class="hljs-keyword">if</span> (!mailObj.data) {
+      mailObj.data = <span class="hljs-string">''</span>;
+    } <span class="hljs-keyword">else</span> {
+      mailObj.data = <span class="hljs-built_in">JSON</span>.parse(mailObj.data);
+    }
+    transport.sendMail({
+      <span class="hljs-attr">to</span>: mailObj.toEmail,
+      <span class="hljs-attr">cc</span>: mailObj.ccEmail,
+      <span class="hljs-attr">bcc</span>: mailObj.bccEmail,
+      <span class="hljs-attr">text</span>: mailObj.data,
+      <span class="hljs-attr">html</span>: mailObj.data,
+      <span class="hljs-attr">subject</span>: mailObj.subject,
+      <span class="hljs-attr">from</span>: mailObj.fromEmail,
+      <span class="hljs-attr">attachments</span>: mailObj.attachments,
+    }, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">err, responseStatus</span>) </span>{
+      <span class="hljs-keyword">if</span> (err) {
+        <span class="hljs-keyword">return</span> cb(<span class="hljs-literal">false</span>, {
+          <span class="hljs-string">'id'</span>: mailObj.emailID,
+          <span class="hljs-string">'error'</span>: <span class="hljs-built_in">JSON</span>.stringify(err)
+        });
+      } <span class="hljs-keyword">else</span> {
+        <span class="hljs-keyword">return</span> cb(<span class="hljs-literal">true</span>, {
+          <span class="hljs-string">'id'</span>: mailObj.emailID,
+          <span class="hljs-string">'error'</span>: responseStatus.message
+        });
+      }
+    });
+  }
+
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-5" id="section-5"></a>
+</div>
+<div class="dox">
+<div class="summary">
+<p>Checks if the attachments are present on the
+filesystem.</p>
+</div>
+<div class="body">
+</div>
+</div>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript">  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">processAttachments</span>(<span class="hljs-params">mailObj, cb</span>) </span>{
+    <span class="hljs-keyword">try</span> {
+      mailObj.attachments = <span class="hljs-built_in">JSON</span>.parse(mailObj.attachments);
+    } <span class="hljs-keyword">catch</span> (err) {
+      <span class="hljs-keyword">return</span> cb(err, mailObj);
+    }
+    <span class="hljs-keyword">if</span> (mailObj.attachments &amp;&amp; mailObj.attachments.length === <span class="hljs-number">0</span>) {
+      <span class="hljs-keyword">delete</span> mailObj.attachments;
+      <span class="hljs-keyword">return</span> cb(<span class="hljs-literal">null</span>, mailObj);
+    }
+    <span class="hljs-keyword">async</span>.filter(mailObj.attachments, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">attachment, next</span>) </span>{
+      fs.exists(attachment.path, next);
+    }, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">results</span>) </span>{
+      mailObj.attachments = results;
+      <span class="hljs-keyword">return</span> cb(<span class="hljs-literal">null</span>, mailObj);
+    });
+  }
+
+  <span class="hljs-keyword">return</span> {
+    <span class="hljs-attr">sendMails</span>: sendMails
+  };
+};
+
+<span class="hljs-built_in">module</span>.exports = mailer();
+
+</pre>
+        </td>
+      </tr>
+    
+  </tbody>
+</table>
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>validator.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" media="all" href="../../../doc-style.css" />
+  <script src="../../../doc-filelist.js"></script>
+  <script>
+    var relativeDir = "../../../";
+    var thisFile = "app\\lib\\helpers\\validator.js";
+    var defaultSidebar = true;
+  </script>
+  <script src="../../../doc-script.js"></script>
+
+</head>
+<body>
+  <div id="sidebar_wrapper">
+    <div id="sidebar_switch">
+      <span class="tree">Files</span>
+      <span class="headings">Headings</span>
+    </div>
+    <div id="tree"></div>
+    <div id="headings">
+
+    </div>
+  </div>
+  <div id="sidebar-toggle"></div>
+  <div id="container">
+    <div class="background highlight"></div>
+<table cellpadding="0" cellspacing="0">
+  <tbody>
+    
+      <tr>
+        <td class="docs">
+          <h1>validator.js</h1>
+        </td>
+        <td class="code highlight"></td>
+      </tr>
+    
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-1" id="section-1"></a>
+</div>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript"><span class="hljs-keyword">var</span> validatorLib = <span class="hljs-built_in">require</span>(<span class="hljs-string">'validator'</span>);
+<span class="hljs-keyword">var</span> __ = <span class="hljs-built_in">require</span>(<span class="hljs-string">'underscore'</span>);
+
+validatorLib.extend(<span class="hljs-string">'isRequired'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">str</span>) </span>{
+  <span class="hljs-keyword">if</span> (!str || str.length === <span class="hljs-number">0</span>) {
+    <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
+  }
+  <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
+});
+
+validatorLib.extend(<span class="hljs-string">'isBoolRequired'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">str</span>) </span>{
+  <span class="hljs-keyword">if</span> (!str || str.length !== <span class="hljs-number">0</span>) {
+    <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
+  }
+  <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
+});
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Validator</span>(<span class="hljs-params">requiredFields</span>) </span>{
+  <span class="hljs-keyword">this</span>.requiredFields = requiredFields;
+  <span class="hljs-keyword">this</span>.errorObj = {};
+}
+
+Validator.prototype.isValid = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">objToValidate, propsToValidate</span>) </span>{
+  <span class="hljs-keyword">this</span>.errorObj = {};
+  <span class="hljs-keyword">if</span> (propsToValidate) {
+    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> i = <span class="hljs-number">0</span>, len = propsToValidate.length, propName; i &lt; len; ++i) {
+      propName = propsToValidate[i];
+      <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.requiredFields.hasOwnProperty(propName)) {
+        <span class="hljs-keyword">this</span>.validateProperty(objToValidate, propsToValidate[i],
+          <span class="hljs-keyword">this</span>.requiredFields[propName].validation);
+      }
+    }
+  } <span class="hljs-keyword">else</span> {
+    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> propName <span class="hljs-keyword">in</span> <span class="hljs-keyword">this</span>.requiredFields) {
+      <span class="hljs-keyword">this</span>.validateProperty(objToValidate, propName,
+        <span class="hljs-keyword">this</span>.requiredFields[propName].validation);
+    }
+  }
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-2" id="section-2"></a>
+</div>
+<p>If object is empty no errors - so true it's valid else its not valid</p>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript">  <span class="hljs-keyword">return</span> __.isEmpty(<span class="hljs-keyword">this</span>.errorObj);
+};
+
+Validator.prototype.validateProperty = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">objToValidate, propName,
+  propsToValidate</span>) </span>{
+  <span class="hljs-keyword">if</span> (!propsToValidate) {
+    <span class="hljs-keyword">return</span>;
+  }
+  <span class="hljs-keyword">var</span> value = objToValidate[propName];
+  <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> validationRule <span class="hljs-keyword">in</span> propsToValidate) {
+    <span class="hljs-keyword">if</span> (validationRule !== <span class="hljs-string">'isRequired'</span> &amp;&amp; !value) {
+      <span class="hljs-keyword">continue</span>;
+    }
+    <span class="hljs-keyword">if</span> (!validatorLib[validationRule](value)) {
+      <span class="hljs-keyword">this</span>.errorObj[propName] = propsToValidate[validationRule];
+      <span class="hljs-keyword">break</span>;
+    }
+  }
+};
+
+Validator.prototype.getErrors = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+  <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.errorObj;
+};
+
+Validator.prototype.isUUID4 = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">str</span>) </span>{
+  <span class="hljs-keyword">return</span> validatorLib.isUUID(str, <span class="hljs-number">4</span>);
+};
+
+Validator.prototype.isEmail = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">str</span>) </span>{
+  <span class="hljs-keyword">return</span> validatorLib.isEmail(str);
+};
+
+Validator.prototype.chkPswrdLength = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">str</span>) </span>{
+  <span class="hljs-keyword">if</span> (!str || str.length &lt; <span class="hljs-number">7</span>) {
+    <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
+  }
+  <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
+};
+
+<span class="hljs-built_in">module</span>.exports = Validator;
+
+</pre>
+        </td>
+      </tr>
+    
+  </tbody>
+</table>
+
+  </div>
+</body>
+</html>

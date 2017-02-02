@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>cassandradb.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" media="all" href="../../../doc-style.css" />
+  <script src="../../../doc-filelist.js"></script>
+  <script>
+    var relativeDir = "../../../";
+    var thisFile = "app\\lib\\db-connector\\cassandradb.js";
+    var defaultSidebar = true;
+  </script>
+  <script src="../../../doc-script.js"></script>
+
+</head>
+<body>
+  <div id="sidebar_wrapper">
+    <div id="sidebar_switch">
+      <span class="tree">Files</span>
+      <span class="headings">Headings</span>
+    </div>
+    <div id="tree"></div>
+    <div id="headings">
+
+    </div>
+  </div>
+  <div id="sidebar-toggle"></div>
+  <div id="container">
+    <div class="background highlight"></div>
+<table cellpadding="0" cellspacing="0">
+  <tbody>
+    
+      <tr>
+        <td class="docs">
+          <h1>cassandradb.js</h1>
+        </td>
+        <td class="code highlight"></td>
+      </tr>
+    
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-1" id="section-1"></a>
+</div>
+<div class="dox">
+<div class="summary">
+<p>A db class to be used by other models to access cassandra database.</p>
+</div>
+<div class="body">
+</div>
+</div>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript"><span class="hljs-meta">'use strict'</span>;
+<span class="hljs-keyword">var</span> cassandra = <span class="hljs-built_in">require</span>(<span class="hljs-string">'cassandra-driver'</span>);
+
+<span class="hljs-keyword">var</span> AppError = <span class="hljs-built_in">require</span>(__CONFIG__.app_base_path + <span class="hljs-string">'lib/app-error'</span>);
+
+<span class="hljs-keyword">var</span> defaultMsg = {
+  <span class="hljs-attr">errorDbConn</span>: <span class="hljs-string">"There was an error while communicating with the database."</span>,
+  <span class="hljs-attr">queryExecution</span>: <span class="hljs-string">"There was an error while executing the query."</span>
+};
+
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-2" id="section-2"></a>
+</div>
+<div class="dox">
+<div class="summary">
+<p>The base cassandra constructor.</p>
+</div>
+<div class="body">
+</div>
+</div>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript"><span class="hljs-keyword">var</span> client = <span class="hljs-literal">false</span>;
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">CassandraDB</span>(<span class="hljs-params">dbConfig</span>) </span>{
+  <span class="hljs-keyword">if</span> (client === <span class="hljs-literal">false</span>) {
+    <span class="hljs-keyword">var</span> authProvider = <span class="hljs-keyword">new</span> cassandra.auth.PlainTextAuthProvider(dbConfig.username, dbConfig.password);
+    client = <span class="hljs-keyword">new</span> cassandra.Client({
+      <span class="hljs-attr">contactPoints</span>: [dbConfig.host],
+      <span class="hljs-attr">authProvider</span>: authProvider
+    });
+  }
+  <span class="hljs-keyword">this</span>.client = client;
+  <span class="hljs-keyword">this</span>.msgStrings = defaultMsg;
+}
+
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-3" id="section-3"></a>
+</div>
+<div class="dox">
+<div class="summary">
+<p>Use this for INSERT, UPDATE, DELETE queries</p>
+</div>
+<div class="body">
+</div>
+<div class="details">
+<div class="dox_tag_title">Params</div>
+<div class="dox_tag_detail">
+<span class="dox_tag_name">objQuery</span>
+<span>Contains the following the properties - query - The SQL Query.
+data - Data to be sent for the query. cb - Callback method.
+</span>
+</div>
+</div>
+</div>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript">CassandraDB.prototype.query = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">objQuery, cb</span>) </span>{
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-4" id="section-4"></a>
+</div>
+<p>cassandra has no close connection option and returning array</p>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript">  runQuery(<span class="hljs-keyword">this</span>, <span class="hljs-literal">false</span>, objQuery.query, objQuery.data, cb);
+  <span class="hljs-keyword">return</span>;
+};
+
+CassandraDB.prototype.getResult = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">objQuery, cb</span>) </span>{
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-5" id="section-5"></a>
+</div>
+<p>objQuery = getDefaultValues(objQuery);</p>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript">  runQuery(<span class="hljs-keyword">this</span>, <span class="hljs-literal">true</span>, objQuery.query, objQuery.data, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">err, data</span>) </span>{
+    <span class="hljs-keyword">if</span> (err) {
+      cb(<span class="hljs-keyword">new</span> AppError(err, defaultMsg.queryExecution, {
+        <span class="hljs-attr">query</span>: objQuery.query
+      }), <span class="hljs-literal">null</span>);
+      <span class="hljs-keyword">return</span>;
+    }
+    <span class="hljs-keyword">var</span> response = {};
+    <span class="hljs-keyword">if</span> (data.length !== <span class="hljs-number">0</span>) {
+      response = data[<span class="hljs-number">0</span>];
+    }
+    cb(<span class="hljs-literal">null</span>, response);
+  });
+};
+
+CassandraDB.prototype.getResults = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">objQuery, cb</span>) </span>{
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-6" id="section-6"></a>
+</div>
+<p>objQuery = getDefaultValues(objQuery);</p>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript">  runQuery(<span class="hljs-keyword">this</span>, <span class="hljs-literal">true</span>, objQuery.query, objQuery.data, cb);
+  <span class="hljs-keyword">return</span>;
+};
+
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-7" id="section-7"></a>
+</div>
+<div class="dox">
+<div class="summary">
+<p>Returns the first value from the result set or null</p>
+</div>
+<div class="body">
+</div>
+<div class="details">
+<div class="dox_tag_title">Params</div>
+<div class="dox_tag_detail">
+<span class="dox_tag_name">objQuery</span>
+<span>Object containing query, parameters etc.
+</span>
+</div>
+</div>
+</div>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript">CassandraDB.prototype.getValue = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">objQuery, cb</span>) </span>{
+  runQuery(<span class="hljs-keyword">this</span>, <span class="hljs-literal">true</span>, objQuery.query, objQuery.data, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">err, data</span>) </span>{
+    <span class="hljs-keyword">if</span> (err) {
+      cb(<span class="hljs-keyword">new</span> AppError(err, defaultMsg.queryExecution, {
+        <span class="hljs-attr">query</span>: objQuery.query
+      }), <span class="hljs-literal">null</span>);
+      <span class="hljs-keyword">return</span>;
+    }
+    <span class="hljs-keyword">var</span> response = <span class="hljs-literal">null</span>;
+    <span class="hljs-keyword">if</span> (data.length !== <span class="hljs-number">0</span> &amp;&amp; data[<span class="hljs-number">0</span>].length !== <span class="hljs-number">0</span>) {
+      response = data[<span class="hljs-number">0</span>][<span class="hljs-number">0</span>];
+    }
+    cb(<span class="hljs-literal">null</span>, response);
+  });
+};
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">runQuery</span>(<span class="hljs-params">objCassandra, isSelect, query, data, cb</span>) </span>{
+  objCassandra.client.execute(query, data, {
+    <span class="hljs-attr">prepare</span>: <span class="hljs-literal">true</span>
+  }, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">err, data</span>) </span>{
+    <span class="hljs-keyword">if</span> (err) {
+      cb(<span class="hljs-keyword">new</span> AppError(err, defaultMsg.queryExecution, {
+        <span class="hljs-attr">query</span>: query
+      }), <span class="hljs-literal">null</span>);
+      <span class="hljs-keyword">return</span>;
+    }
+    cb(<span class="hljs-literal">null</span>, data);
+  });
+}
+
+<span class="hljs-built_in">module</span>.exports = CassandraDB;
+
+</pre>
+        </td>
+      </tr>
+    
+  </tbody>
+</table>
+
+  </div>
+</body>
+</html>

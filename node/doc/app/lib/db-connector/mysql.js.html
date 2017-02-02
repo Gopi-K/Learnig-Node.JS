@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>mysql.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" media="all" href="../../../doc-style.css" />
+  <script src="../../../doc-filelist.js"></script>
+  <script>
+    var relativeDir = "../../../";
+    var thisFile = "app\\lib\\db-connector\\mysql.js";
+    var defaultSidebar = true;
+  </script>
+  <script src="../../../doc-script.js"></script>
+
+</head>
+<body>
+  <div id="sidebar_wrapper">
+    <div id="sidebar_switch">
+      <span class="tree">Files</span>
+      <span class="headings">Headings</span>
+    </div>
+    <div id="tree"></div>
+    <div id="headings">
+
+    </div>
+  </div>
+  <div id="sidebar-toggle"></div>
+  <div id="container">
+    <div class="background highlight"></div>
+<table cellpadding="0" cellspacing="0">
+  <tbody>
+    
+      <tr>
+        <td class="docs">
+          <h1>mysql.js</h1>
+        </td>
+        <td class="code highlight"></td>
+      </tr>
+    
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-1" id="section-1"></a>
+</div>
+<div class="dox">
+<div class="summary">
+<p>A db class to be used by other models. Uses the following -
+https://github.com/felixge/node-mysql DEPENDENCIES - node-mariasql -
+app-error.js TODO : Add transaction support.</p>
+</div>
+<div class="body">
+</div>
+</div>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript"><span class="hljs-meta">
+'use strict'</span>;
+
+<span class="hljs-keyword">var</span> mSQLClient = <span class="hljs-built_in">require</span>(<span class="hljs-string">'mysql'</span>);
+
+<span class="hljs-keyword">var</span> SQLPool = <span class="hljs-built_in">require</span>(__CONFIG__.app_lib_path + <span class="hljs-string">'db-connector/pools/mysql-pool'</span>);
+<span class="hljs-keyword">var</span> AppError = <span class="hljs-built_in">require</span>(__CONFIG__.app_lib_path + <span class="hljs-string">'app-error'</span>);
+
+<span class="hljs-keyword">var</span> defaultMsg = {
+  <span class="hljs-attr">errorDbConn</span>: <span class="hljs-string">"There was an error while communicating with the database."</span>,
+  <span class="hljs-attr">queryExecution</span>: <span class="hljs-string">"There was an error while executing the query."</span>
+};
+
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-2" id="section-2"></a>
+</div>
+<div class="dox">
+<div class="summary">
+<p>The base MariaDb constructor.</p>
+</div>
+<div class="body">
+</div>
+<div class="details">
+<div class="dox_tag_title">Params</div>
+<div class="dox_tag_detail">
+<span class="dox_tag_name">dbConfig</span>
+<span>Database configurations
+</span>
+</div>
+<div class="dox_tag_detail">
+<span class="dox_tag_name">customMsgs</span>
+<span>Use this parameter to override the custom messages used.
+</span>
+</div>
+</div>
+</div>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">MySQL</span>(<span class="hljs-params">dbConfig, customMsgs</span>) </span>{
+  <span class="hljs-keyword">this</span>.config = dbConfig;
+  <span class="hljs-keyword">this</span>.msgStrings = defaultMsg;
+  <span class="hljs-keyword">if</span> (customMsgs !== <span class="hljs-literal">undefined</span> &amp;&amp; customMsgs.errorDbConn &amp;&amp; customMsgs.queryExecution) {
+    <span class="hljs-keyword">this</span>.msgStrings = customMsgs;
+  }
+}
+
+MySQL.prototype.setDbConfig = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">dbConfig</span>) </span>{
+  <span class="hljs-keyword">this</span>.config = dbConfig;
+  <span class="hljs-keyword">this</span>.closeConnection();
+};
+
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-3" id="section-3"></a>
+</div>
+<div class="dox">
+<div class="summary">
+<p>Use this for INSERT, UPDATE, DELETE queries</p>
+</div>
+<div class="body">
+</div>
+<div class="details">
+<div class="dox_tag_title">Params</div>
+<div class="dox_tag_detail">
+<span class="dox_tag_name">objQuery</span>
+<span>Contains the following the properties - query - The SQL Query. data -
+Data to be sent for the query. cb - Callback method. closeConn -
+Close the connection automatically. useArray - Respond with an array
+rather than an object.
+</span>
+</div>
+</div>
+</div>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript">MySQL.prototype.query = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">objQuery, cb</span>) </span>{
+  runQuery(<span class="hljs-keyword">this</span>, <span class="hljs-literal">false</span>, objQuery.query, objQuery.data, cb, objQuery.closeConn);
+};
+
+MySQL.prototype.getResult = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">objQuery, cb</span>) </span>{
+  runQuery(<span class="hljs-keyword">this</span>, <span class="hljs-literal">true</span>, objQuery.query, objQuery.data, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">err, data</span>) </span>{
+    <span class="hljs-keyword">if</span> (err) {
+      cb(err, <span class="hljs-literal">null</span>);
+      <span class="hljs-keyword">return</span>;
+    }
+    <span class="hljs-keyword">var</span> response = {};
+    <span class="hljs-keyword">if</span> (data.length !== <span class="hljs-number">0</span>) {
+      response = data[<span class="hljs-number">0</span>];
+    }
+    cb(<span class="hljs-literal">null</span>, response);
+  }, objQuery.closeConn, objQuery.useArray);
+};
+
+MySQL.prototype.getResults = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">objQuery, cb</span>) </span>{
+  runQuery(<span class="hljs-keyword">this</span>, <span class="hljs-literal">true</span>, objQuery.query, objQuery.data, cb, objQuery.closeConn);
+};
+
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-4" id="section-4"></a>
+</div>
+<p>isSelect is currently not being used, leaving it as is, to maybe use in the
+future</p>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">runQuery</span>(<span class="hljs-params">objMySQL, isSelect, query, data, cb, closeConn</span>) </span>{
+  SQLPool(objMySQL.config, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">err, connection</span>) </span>{
+    <span class="hljs-keyword">if</span> (err) {
+      cb(<span class="hljs-keyword">new</span> AppError(err, objMySQL.msgStrings[<span class="hljs-string">'errorDbConn'</span>]), <span class="hljs-literal">null</span>);
+      <span class="hljs-keyword">return</span>;
+    }
+    connection.query(query, data, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">err, result</span>) </span>{
+      <span class="hljs-keyword">if</span> (err) {
+        cb(<span class="hljs-keyword">new</span> AppError(err, objMySQL.msgStrings[<span class="hljs-string">'queryExecution'</span>]), <span class="hljs-literal">null</span>);
+        <span class="hljs-keyword">return</span>;
+      }
+      cb(<span class="hljs-literal">null</span>, result);
+      <span class="hljs-keyword">if</span> (closeConn) {
+        connection.release();
+      }
+    });
+  });
+}
+
+<span class="hljs-built_in">module</span>.exports = MySQL;
+
+</pre>
+        </td>
+      </tr>
+    
+  </tbody>
+</table>
+
+  </div>
+</body>
+</html>

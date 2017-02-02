@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>service.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" media="all" href="../../doc-style.css" />
+  <script src="../../doc-filelist.js"></script>
+  <script>
+    var relativeDir = "../../";
+    var thisFile = "app\\lib\\service.js";
+    var defaultSidebar = true;
+  </script>
+  <script src="../../doc-script.js"></script>
+
+</head>
+<body>
+  <div id="sidebar_wrapper">
+    <div id="sidebar_switch">
+      <span class="tree">Files</span>
+      <span class="headings">Headings</span>
+    </div>
+    <div id="tree"></div>
+    <div id="headings">
+
+    </div>
+  </div>
+  <div id="sidebar-toggle"></div>
+  <div id="container">
+    <div class="background highlight"></div>
+<table cellpadding="0" cellspacing="0">
+  <tbody>
+    
+      <tr>
+        <td class="docs">
+          <h1>service.js</h1>
+        </td>
+        <td class="code highlight"></td>
+      </tr>
+    
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-1" id="section-1"></a>
+</div>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript"><span class="hljs-keyword">var</span> GetStatus = <span class="hljs-built_in">require</span>(__CONFIG__.app_lib_path + <span class="hljs-string">'status'</span>);
+
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-2" id="section-2"></a>
+</div>
+<p>Helpers</p>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript"><span class="hljs-keyword">var</span> DateUtil = <span class="hljs-built_in">require</span>(__CONFIG__.app_helper_path + <span class="hljs-string">'date-utility'</span>);
+<span class="hljs-keyword">var</span> Mailer = <span class="hljs-built_in">require</span>(__CONFIG__.app_helper_path + <span class="hljs-string">'mailer'</span>);
+<span class="hljs-keyword">var</span> Validator = <span class="hljs-built_in">require</span>(__CONFIG__.app_helper_path + <span class="hljs-string">'validator'</span>);
+<span class="hljs-keyword">var</span> CSV = <span class="hljs-built_in">require</span>(__CONFIG__.app_helper_path + <span class="hljs-string">'csv-helper'</span>);
+<span class="hljs-keyword">var</span> Zipper = <span class="hljs-built_in">require</span>(__CONFIG__.app_helper_path + <span class="hljs-string">'zipper'</span>);
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Service</span>(<span class="hljs-params"></span>) </span>{
+  <span class="hljs-keyword">this</span>.getStatus = GetStatus;
+
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-3" id="section-3"></a>
+</div>
+<p>Helpers.</p>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript">  <span class="hljs-keyword">this</span>.dateUtil = DateUtil;
+  <span class="hljs-keyword">this</span>.mailer = Mailer;
+  <span class="hljs-keyword">this</span>.csvHelper = <span class="hljs-keyword">new</span> CSV();
+  <span class="hljs-keyword">this</span>.validator = <span class="hljs-keyword">new</span> Validator();
+  <span class="hljs-keyword">this</span>.zipper = <span class="hljs-keyword">new</span> Zipper();
+}
+
+
+<span class="hljs-built_in">module</span>.exports = Service;
+
+</pre>
+        </td>
+      </tr>
+    
+  </tbody>
+</table>
+
+  </div>
+</body>
+</html>

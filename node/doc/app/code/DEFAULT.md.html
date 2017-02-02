@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>DEFAULT.md</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" media="all" href="../../doc-style.css" />
+  <script src="../../doc-filelist.js"></script>
+  <script>
+    var relativeDir = "../../";
+    var thisFile = "app\\code\\DEFAULT.md";
+    var defaultSidebar = true;
+  </script>
+  <script src="../../doc-script.js"></script>
+
+</head>
+<body>
+  <div id="sidebar_wrapper">
+    <div id="sidebar_switch">
+      <span class="tree">Files</span>
+      <span class="headings">Headings</span>
+    </div>
+    <div id="tree"></div>
+    <div id="headings">
+
+      <div class="heading h1">
+        <a href="#demo-controller">Demo Controller</a>
+      </div>
+
+      <div class="heading h1">
+        <a href="#demo-service">Demo Service</a>
+      </div>
+
+      <div class="heading h1">
+        <a href="#demo-model">Demo Model</a>
+      </div>
+
+    </div>
+  </div>
+  <div id="sidebar-toggle"></div>
+  <div id="container">
+    <div class="docs markdown"><div class="pilwrap" id="demo-controller">
+  <h1>
+    <a href="#demo-controller" name="demo-controller" class="pilcrow"></a>
+Demo Controller
+  </h1>
+</div>
+<pre><code class="js"><span class="hljs-comment">/* global __CONFIG__ */</span>
+<span class="hljs-meta">'use strict'</span>;
+
+<span class="hljs-comment">// Third party modules</span>
+<span class="hljs-keyword">var</span> fs = <span class="hljs-built_in">require</span>(<span class="hljs-string">'fs'</span>);
+<span class="hljs-keyword">var</span> <span class="hljs-keyword">async</span> = <span class="hljs-built_in">require</span>(<span class="hljs-string">'async'</span>);
+<span class="hljs-keyword">var</span> util = <span class="hljs-built_in">require</span>(<span class="hljs-string">'util'</span>);
+
+<span class="hljs-comment">// Internal modules</span>
+<span class="hljs-keyword">var</span> GetStatus = <span class="hljs-built_in">require</span>(__CONFIG__.app_lib_path + <span class="hljs-string">'status.js'</span>);
+<span class="hljs-keyword">var</span> AppController = <span class="hljs-built_in">require</span>(__CONFIG__.app_code_path + <span class="hljs-string">'app-controller.js'</span>);
+<span class="hljs-keyword">var</span> UserService = <span class="hljs-built_in">require</span>(__CONFIG__.app_code_path + <span class="hljs-string">'user/user-service.js'</span>);
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">UserController</span>(<span class="hljs-params">app</span>) </span>{
+  AppController.call(<span class="hljs-keyword">this</span>);
+
+  app.httpGet({
+    <span class="hljs-attr">url</span>: <span class="hljs-string">'/user/:id'</span>,
+    <span class="hljs-attr">route</span>: <span class="hljs-keyword">this</span>.getUser.bind(<span class="hljs-keyword">this</span>),
+    <span class="hljs-attr">isPublic</span>: <span class="hljs-literal">true</span>,
+    <span class="hljs-attr">isAdmin</span>: <span class="hljs-literal">false</span>
+  });
+}
+
+util.inherits(UserController, AppController);
+
+<span class="hljs-comment">// Your code starts here.</span>
+
+UserController.prototype.getUser = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">request, response</span>) </span>{
+  <span class="hljs-keyword">this</span>.sendResponse(<span class="hljs-literal">null</span>, {
+    <span class="hljs-string">'username'</span>: <span class="hljs-string">'Abijeet Patro'</span>,
+    <span class="hljs-string">'password'</span>: <span class="hljs-string">'ABC'</span>
+  }, response);
+}
+
+<span class="hljs-built_in">module</span>.exports = UserController;
+</code></pre>
+<div class="pilwrap" id="demo-service">
+  <h1>
+    <a href="#demo-service" name="demo-service" class="pilcrow"></a>
+Demo Service
+  </h1>
+</div>
+<pre><code class="js"><span class="hljs-comment">/* global __CONFIG__ */</span>
+<span class="hljs-meta">'use strict'</span>;
+
+<span class="hljs-comment">// Third party modules</span>
+<span class="hljs-keyword">var</span> fs = <span class="hljs-built_in">require</span>(<span class="hljs-string">'fs'</span>);
+<span class="hljs-keyword">var</span> <span class="hljs-keyword">async</span> = <span class="hljs-built_in">require</span>(<span class="hljs-string">'async'</span>);
+<span class="hljs-keyword">var</span> util = <span class="hljs-built_in">require</span>(<span class="hljs-string">'util'</span>);
+
+<span class="hljs-comment">// Internal modules</span>
+<span class="hljs-keyword">var</span> AppService = <span class="hljs-built_in">require</span>(__CONFIG__.app_code_path + <span class="hljs-string">'app-service.js'</span>);
+<span class="hljs-keyword">var</span> GetStatus = <span class="hljs-built_in">require</span>(__CONFIG__.app_lib_path + <span class="hljs-string">'status.js'</span>);
+<span class="hljs-keyword">var</span> UserModel = <span class="hljs-built_in">require</span>(__CONFIG__.app_code_path + <span class="hljs-string">'user/user-model.js'</span>);
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">UserService</span>(<span class="hljs-params">app</span>) </span>{  
+  UserService.call(<span class="hljs-keyword">this</span>);     
+}
+
+util.inherits(UserService, AppService);
+
+<span class="hljs-comment">// Your code starts here.</span>
+
+<span class="hljs-built_in">module</span>.exports = UserService;
+</code></pre>
+<div class="pilwrap" id="demo-model">
+  <h1>
+    <a href="#demo-model" name="demo-model" class="pilcrow"></a>
+Demo Model
+  </h1>
+</div>
+<pre><code class="js"><span class="hljs-comment">/* global __CONFIG__ */</span>
+<span class="hljs-meta">'use strict'</span>;
+
+<span class="hljs-comment">// Third party modules</span>
+<span class="hljs-keyword">var</span> fs = <span class="hljs-built_in">require</span>(<span class="hljs-string">'fs'</span>);
+<span class="hljs-keyword">var</span> <span class="hljs-keyword">async</span> = <span class="hljs-built_in">require</span>(<span class="hljs-string">'async'</span>);
+<span class="hljs-keyword">var</span> util = <span class="hljs-built_in">require</span>(<span class="hljs-string">'util'</span>);
+
+<span class="hljs-comment">// Internal modules</span>
+<span class="hljs-keyword">var</span> AppModel = <span class="hljs-built_in">require</span>(__CONFIG__.app_code_path + <span class="hljs-string">'app-model.js'</span>);
+<span class="hljs-keyword">var</span> GetStatus = <span class="hljs-built_in">require</span>(__CONFIG__.app_lib_path + <span class="hljs-string">'status.js'</span>);
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">UserModel</span>(<span class="hljs-params">app</span>) </span>{
+  AppModel.call(<span class="hljs-keyword">this</span>);     
+}
+
+util.inherits(UserModel, AppModel);
+
+<span class="hljs-comment">// Your code starts here.</span>
+
+<span class="hljs-built_in">module</span>.exports = UserModel;
+</code></pre>
+</div>
+  </div>
+</body>
+</html>

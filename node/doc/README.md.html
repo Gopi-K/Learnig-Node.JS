@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>README.md</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" media="all" href="doc-style.css" />
+  <script src="doc-filelist.js"></script>
+  <script>
+    var relativeDir = "";
+    var thisFile = "README.md";
+    var defaultSidebar = true;
+  </script>
+  <script src="doc-script.js"></script>
+
+</head>
+<body>
+  <div id="sidebar_wrapper">
+    <div id="sidebar_switch">
+      <span class="tree">Files</span>
+      <span class="headings">Headings</span>
+    </div>
+    <div id="tree"></div>
+    <div id="headings">
+
+      <div class="heading h1">
+        <a href="#node-simplex">node-simplex</a>
+      </div>
+
+      <div class="heading h1">
+        <a href="#requirements">Requirements</a>
+      </div>
+
+      <div class="heading h1">
+        <a href="#installation">Installation</a>
+      </div>
+
+      <div class="heading h2">
+        <a href="#get-the-files-from-github">Get the files from github</a>
+      </div>
+
+      <div class="heading h2">
+        <a href="#setup-the-sql-database">Setup the SQL database</a>
+      </div>
+
+      <div class="heading h2">
+        <a href="#installing-dependencies">Installing dependencies</a>
+      </div>
+
+      <div class="heading h2">
+        <a href="#setting-up-documentation">Setting up documentation</a>
+      </div>
+
+    </div>
+  </div>
+  <div id="sidebar-toggle"></div>
+  <div id="container">
+    <div class="docs markdown"><div class="pilwrap" id="node-simplex">
+  <h1>
+    <a href="#node-simplex" name="node-simplex" class="pilcrow"></a>
+node-simplex
+  </h1>
+</div>
+<p>Node Simplex</p>
+<div class="pilwrap" id="requirements">
+  <h1>
+    <a href="#requirements" name="requirements" class="pilcrow"></a>
+Requirements
+  </h1>
+</div>
+<ul>
+<li>Ensure that you have python (version of python must be &gt; 2.5.0 and &lt; 3.0.0). <code>node-mariasql</code> requires python to be installed and in the PATH variable.</li>
+<li>node.js</li>
+<li>npm</li>
+</ul>
+<div class="pilwrap" id="installation">
+  <h1>
+    <a href="#installation" name="installation" class="pilcrow"></a>
+Installation
+  </h1>
+</div>
+<div class="pilwrap" id="get-the-files-from-github">
+  <h2>
+    <a href="#get-the-files-from-github" name="get-the-files-from-github" class="pilcrow"></a>
+Get the files from github
+  </h2>
+</div>
+<ol>
+<li>Do a git clone - <code>git clone /path/to/git --recursive</code>. This will pull the latest code including the sub-directoy.</li>
+</ol>
+<div class="pilwrap" id="setup-the-sql-database">
+  <h2>
+    <a href="#setup-the-sql-database" name="setup-the-sql-database" class="pilcrow"></a>
+Setup the SQL database
+  </h2>
+</div>
+<p>We use the MariaDB server.</p>
+<ol>
+<li>Restore the database from the <code>sql</code> folder</li>
+<li>Update the <code>db-config.js</code> file to point to your database</li>
+</ol>
+<div class="pilwrap" id="installing-dependencies">
+  <h2>
+    <a href="#installing-dependencies" name="installing-dependencies" class="pilcrow"></a>
+Installing dependencies
+  </h2>
+</div>
+<ol>
+<li>Run <code>npm install</code> to install node.js dependencies</li>
+<li>Run <code>bower install</code> to install frontend dependencies</li>
+<li>Run <code>npm start</code></li>
+</ol>
+<div class="pilwrap" id="setting-up-documentation">
+  <h2>
+    <a href="#setting-up-documentation" name="setting-up-documentation" class="pilcrow"></a>
+Setting up documentation
+  </h2>
+</div>
+<ol>
+<li>Ensure <code>docker</code> is installed - <code>npm install -g docker</code></li>
+<li>In command line, and browse to the code base directory</li>
+<li>Run <code>docker -o ./documents/code -c manni -s yes -I -u -x node_modules,app/code/public_html/plugins,documents -w --extras fileSearch</code></li>
+</ol>
+</div>
+  </div>
+</body>
+</html>

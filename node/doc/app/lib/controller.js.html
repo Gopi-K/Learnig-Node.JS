@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>controller.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" media="all" href="../../doc-style.css" />
+  <script src="../../doc-filelist.js"></script>
+  <script>
+    var relativeDir = "../../";
+    var thisFile = "app\\lib\\controller.js";
+    var defaultSidebar = true;
+  </script>
+  <script src="../../doc-script.js"></script>
+
+</head>
+<body>
+  <div id="sidebar_wrapper">
+    <div id="sidebar_switch">
+      <span class="tree">Files</span>
+      <span class="headings">Headings</span>
+    </div>
+    <div id="tree"></div>
+    <div id="headings">
+
+    </div>
+  </div>
+  <div id="sidebar-toggle"></div>
+  <div id="container">
+    <div class="background highlight"></div>
+<table cellpadding="0" cellspacing="0">
+  <tbody>
+    
+      <tr>
+        <td class="docs">
+          <h1>controller.js</h1>
+        </td>
+        <td class="code highlight"></td>
+      </tr>
+    
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-1" id="section-1"></a>
+</div>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript"><span class="hljs-meta">'use strict'</span>;
+
+<span class="hljs-keyword">var</span> GetStatus = <span class="hljs-built_in">require</span>(__CONFIG__.app_lib_path + <span class="hljs-string">'status'</span>);
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Controller</span>(<span class="hljs-params"></span>) </span>{<span class="hljs-meta">
+  'use strict'</span>;
+  <span class="hljs-keyword">this</span>.getStatusCode = GetStatus;
+}
+
+Controller.prototype.sendResponse = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">err, data, response</span>) </span>{<span class="hljs-meta">
+  'use strict'</span>;
+  <span class="hljs-keyword">this</span>.responseObj = response;
+  <span class="hljs-keyword">if</span> (err) {
+    <span class="hljs-keyword">this</span>.determineError(err);
+    response.dataSentToClient = <span class="hljs-keyword">this</span>.err.objToSend;
+    response.msgSentToClient = <span class="hljs-keyword">this</span>.err.message;
+    response.format({
+      <span class="hljs-string">'application/json'</span>: <span class="hljs-keyword">this</span>.jsonError.bind(<span class="hljs-keyword">this</span>),
+      <span class="hljs-string">'default'</span>: <span class="hljs-keyword">this</span>.jsonError.bind(<span class="hljs-keyword">this</span>)
+    });
+  } <span class="hljs-keyword">else</span> {
+    <span class="hljs-keyword">this</span>.determineSuccess(data);
+    response.dataSentToClient = <span class="hljs-keyword">this</span>.success.dataToSend;
+    response.msgSentToClient = <span class="hljs-string">''</span>;
+    response.format({
+      <span class="hljs-string">'application/json'</span>: <span class="hljs-keyword">this</span>.jsonSuccess.bind(<span class="hljs-keyword">this</span>),
+      <span class="hljs-string">'default'</span>: <span class="hljs-keyword">this</span>.jsonSuccess.bind(<span class="hljs-keyword">this</span>)
+    });
+  }
+};
+
+Controller.prototype.jsonSuccess = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{<span class="hljs-meta">
+  'use strict'</span>;
+  <span class="hljs-keyword">var</span> objToSend = {
+    <span class="hljs-string">'status'</span>: <span class="hljs-keyword">this</span>.success.status,
+    <span class="hljs-string">'data'</span>: <span class="hljs-keyword">this</span>.success.dataToSend
+  };
+  <span class="hljs-keyword">this</span>.responseObj.status(<span class="hljs-keyword">this</span>.success.statusCode).json(objToSend);
+};
+
+Controller.prototype.jsonError = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{<span class="hljs-meta">
+  'use strict'</span>;
+  <span class="hljs-keyword">var</span> objToSend = {
+    <span class="hljs-string">'status'</span>: <span class="hljs-keyword">this</span>.err.status,
+    <span class="hljs-string">'message'</span>: <span class="hljs-keyword">this</span>.err.message
+  };
+  <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.err.objToSend) {
+    objToSend.data = <span class="hljs-keyword">this</span>.err.objToSend;
+  }
+  <span class="hljs-keyword">this</span>.responseObj.status(<span class="hljs-keyword">this</span>.err.statusCode).json(objToSend);
+};
+
+Controller.prototype.determineError = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">errObj</span>) </span>{<span class="hljs-meta">
+  'use strict'</span>;
+  <span class="hljs-keyword">this</span>.err = {};
+  <span class="hljs-keyword">this</span>.err.status = <span class="hljs-string">'fail'</span>;
+  <span class="hljs-keyword">this</span>.err.objToSend = <span class="hljs-literal">null</span>;
+  <span class="hljs-keyword">this</span>.err.message = errObj.appMessage;
+  <span class="hljs-keyword">if</span> (errObj.isInternalErr) {
+    <span class="hljs-keyword">this</span>.err.status = <span class="hljs-string">'error'</span>;
+    <span class="hljs-keyword">this</span>.err.statusCode = <span class="hljs-keyword">this</span>.getStatusCode(<span class="hljs-string">'internalError'</span>);
+  } <span class="hljs-keyword">else</span> {
+    <span class="hljs-keyword">this</span>.err.objToSend = errObj.validation;
+    <span class="hljs-keyword">this</span>.err.statusCode = errObj.status;
+  }
+};
+
+Controller.prototype.determineSuccess = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">data</span>) </span>{<span class="hljs-meta">
+  'use strict'</span>;
+  <span class="hljs-keyword">this</span>.success = {};
+  <span class="hljs-keyword">this</span>.success.status = <span class="hljs-string">'success'</span>;
+  <span class="hljs-keyword">this</span>.success.dataToSend = data;
+  <span class="hljs-keyword">this</span>.success.statusCode = <span class="hljs-keyword">this</span>.getStatusCode(<span class="hljs-string">'success'</span>);
+};
+
+Controller.prototype.download = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">response, fileNameToShow, folderPath, fileToDownload</span>) </span>{
+  <span class="hljs-keyword">var</span> that = <span class="hljs-keyword">this</span>;
+  response.attachment(fileNameToShow);
+  response.setHeader(<span class="hljs-string">'Set-Cookie'</span>, <span class="hljs-string">'fileDownload=true; path=/'</span>);
+  response.dataSentToClient = <span class="hljs-string">'File to download : '</span> + fileToDownload;
+  response.msgSentToClient = <span class="hljs-string">'Downloading file...'</span>;
+  <span class="hljs-keyword">var</span> options = {
+    <span class="hljs-attr">root</span>: folderPath,
+    <span class="hljs-attr">dotfiles</span>: <span class="hljs-string">'deny'</span>,
+    <span class="hljs-attr">headers</span>: {
+      <span class="hljs-string">'x-timestamp'</span>: <span class="hljs-built_in">Date</span>.now(),
+      <span class="hljs-string">'x-sent'</span>: <span class="hljs-literal">true</span>
+    }
+  };
+  response.sendFile(fileToDownload,
+    options,
+    <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">err</span>) </span>{
+      <span class="hljs-keyword">if</span> (err) {
+        <span class="hljs-keyword">if</span> (!response.headersSent) {
+          that.sendResponse(err, <span class="hljs-literal">null</span>, response);
+        }
+      }
+    });
+};
+
+<span class="hljs-built_in">module</span>.exports = Controller;
+
+</pre>
+        </td>
+      </tr>
+    
+  </tbody>
+</table>
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>router.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" media="all" href="../../../doc-style.css" />
+  <script src="../../../doc-filelist.js"></script>
+  <script>
+    var relativeDir = "../../../";
+    var thisFile = "app\\lib\\router\\router.js";
+    var defaultSidebar = true;
+  </script>
+  <script src="../../../doc-script.js"></script>
+
+</head>
+<body>
+  <div id="sidebar_wrapper">
+    <div id="sidebar_switch">
+      <span class="tree">Files</span>
+      <span class="headings">Headings</span>
+    </div>
+    <div id="tree"></div>
+    <div id="headings">
+
+    </div>
+  </div>
+  <div id="sidebar-toggle"></div>
+  <div id="container">
+    <div class="background highlight"></div>
+<table cellpadding="0" cellspacing="0">
+  <tbody>
+    
+      <tr>
+        <td class="docs">
+          <h1>router.js</h1>
+        </td>
+        <td class="code highlight"></td>
+      </tr>
+    
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-1" id="section-1"></a>
+</div>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript"><span class="hljs-comment">/* global __CONFIG__ */</span>
+<span class="hljs-keyword">var</span> formidable = <span class="hljs-built_in">require</span>(<span class="hljs-string">'formidable'</span>);
+<span class="hljs-keyword">var</span> bodyParser = <span class="hljs-built_in">require</span>(<span class="hljs-string">'body-parser'</span>);
+<span class="hljs-keyword">var</span> util = <span class="hljs-built_in">require</span>(<span class="hljs-string">'util'</span>);
+<span class="hljs-keyword">var</span> __ = <span class="hljs-built_in">require</span>(<span class="hljs-string">'underscore'</span>);
+<span class="hljs-keyword">var</span> fs = <span class="hljs-built_in">require</span>(<span class="hljs-string">'fs'</span>);
+<span class="hljs-keyword">var</span> path = <span class="hljs-built_in">require</span>(<span class="hljs-string">'path'</span>);
+<span class="hljs-keyword">var</span> compression = <span class="hljs-built_in">require</span>(<span class="hljs-string">'compression'</span>);
+<span class="hljs-keyword">var</span> moment = <span class="hljs-built_in">require</span>(<span class="hljs-string">'moment'</span>);
+
+<span class="hljs-keyword">var</span> LoadCustomApi = <span class="hljs-built_in">require</span>(__CONFIG__.app_code_path + <span class="hljs-string">'api.js'</span>);
+<span class="hljs-keyword">var</span> GetStatus = <span class="hljs-built_in">require</span>(__CONFIG__.app_lib_path + <span class="hljs-string">'status'</span>);
+<span class="hljs-keyword">var</span> Slogger = <span class="hljs-built_in">require</span>(__CONFIG__.app_helper_path + <span class="hljs-string">'slogerr'</span>);
+<span class="hljs-keyword">var</span> AppError = <span class="hljs-built_in">require</span>(__CONFIG__.app_lib_path + <span class="hljs-string">'app-error'</span>);
+<span class="hljs-keyword">var</span> RouteHelper = <span class="hljs-built_in">require</span>(__CONFIG__.app_lib_path + <span class="hljs-string">'router/route-helper.js'</span>);
+
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-2" id="section-2"></a>
+</div>
+<p>Folders that will not be considered as controllers while autoloading controllers.</p>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript"><span class="hljs-keyword">var</span> internalExclusionApi = [];
+internalExclusionApi.concat(__CONFIG__.excluded_controllers);
+
+<span class="hljs-keyword">var</span> cntrlOutput = <span class="hljs-string">''</span>;
+
+<span class="hljs-keyword">var</span> serverHelper = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+  <span class="hljs-keyword">var</span> app = <span class="hljs-literal">null</span>;
+  <span class="hljs-keyword">var</span> validMethodTypes = [<span class="hljs-string">'get'</span>, <span class="hljs-string">'post'</span>, <span class="hljs-string">'delete'</span>, <span class="hljs-string">'put'</span>];
+  <span class="hljs-keyword">var</span> jsonParser = bodyParser.json();
+  
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-3" id="section-3"></a>
+</div>
+<p>The initialization method.
+Binds a wrapper around the express app variable.</p>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript">  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">_init</span>(<span class="hljs-params">baseApp</span>) </span>{
+    app = baseApp;
+    app.httpPost = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">routeObj</span>) </span>{
+      routeObj.method = <span class="hljs-string">'post'</span>;
+      bindRequest(routeObj);
+    };
+
+    app.httpGet = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">routeObj</span>) </span>{
+      routeObj.method = <span class="hljs-string">'get'</span>;
+      bindRequest(routeObj);
+    };
+
+    app.httpDelete = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">routeObj</span>) </span>{
+      routeObj.method = <span class="hljs-string">'delete'</span>;
+      bindRequest(routeObj);
+    };
+
+    app.httpPut = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">routeObj</span>) </span>{
+      routeObj.method = <span class="hljs-string">'put'</span>;
+      bindRequest(routeObj);
+    };
+  }; 
+
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-4" id="section-4"></a>
+</div>
+<p>Checks the request type, and if it's a multipart/form-data
+request, it parses that, else it assumes that it's JSON</p>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript">  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">_parseBodyTypeValues</span>(<span class="hljs-params">request, response, next</span>) </span>{
+    <span class="hljs-keyword">var</span> contentType = request.get(<span class="hljs-string">'content-type'</span>);
+    <span class="hljs-keyword">var</span> type = <span class="hljs-keyword">typeof</span>(contentType);
+    <span class="hljs-keyword">var</span> isMultipart = <span class="hljs-number">-1</span>;
+    <span class="hljs-keyword">if</span> (type !== <span class="hljs-string">'undefined'</span>) {
+      isMultipart = contentType.search(<span class="hljs-string">'multipart/form-data'</span>);
+    }
+
+    <span class="hljs-keyword">if</span> (isMultipart &gt; <span class="hljs-number">-1</span>) {
+      <span class="hljs-keyword">var</span> form = <span class="hljs-keyword">new</span> formidable.IncomingForm({
+        <span class="hljs-attr">uploadDir</span>: __CONFIG__.getUploadsFolderPath(),
+        <span class="hljs-attr">keepExtensions</span>: <span class="hljs-literal">true</span>,
+        <span class="hljs-attr">multiples</span>: <span class="hljs-literal">true</span>
+      });
+      form.parse(request, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">err, fields, files</span>) </span>{
+        request.fields = fields;
+        request.files = files;
+        next();
+      });
+    } <span class="hljs-keyword">else</span> {
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-5" id="section-5"></a>
+</div>
+<p>Treat the data as JSON, and use the parser.</p>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript">      jsonParser(request, response, next);
+    }
+  };
+
+  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">_loadRoutes</span>(<span class="hljs-params">app</span>) </span>{
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-6" id="section-6"></a>
+</div>
+<p>Get all the folder names</p>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript">    <span class="hljs-keyword">var</span> files = fs.readdirSync(__CONFIG__.app_code_path);
+    <span class="hljs-keyword">if</span> (!files) {
+      <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'There was an error while reading the folders inside the \'code\' directory.'</span>);
+      process.exit(<span class="hljs-number">1</span>);
+    }
+
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-7" id="section-7"></a>
+</div>
+<p>We don't really care about speed, so doing a sync execution</p>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript">    <span class="hljs-keyword">var</span> statObj = <span class="hljs-literal">null</span>;
+    <span class="hljs-keyword">var</span> controllerName = <span class="hljs-string">''</span>;
+    <span class="hljs-keyword">var</span> allControllers = [];
+    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> i = <span class="hljs-number">0</span>; i &lt; files.length; ++i) {
+      statObj = fs.statSync(__CONFIG__.app_code_path + files[i]);
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-8" id="section-8"></a>
+</div>
+<p>Check if its a valid folder.</p>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript">      <span class="hljs-keyword">if</span> (statObj &amp;&amp; statObj.isDirectory() &amp;&amp; RouteHelper.isValidControllerFolder(files[i], internalExclusionApi)) {
+        controllerName = RouteHelper.getControllerNameByFolder(files[i]);
+        <span class="hljs-keyword">var</span> controllerFileName = __CONFIG__.app_code_path + files[i] + <span class="hljs-string">'/'</span> + controllerName;
+        <span class="hljs-keyword">if</span> (fs.existsSync(controllerFileName)) {
+          allControllers.push(controllerFileName);
+        }
+      }
+    }
+    <span class="hljs-keyword">var</span> loadedControllersObj;
+    loadedControllersObj = [];
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-9" id="section-9"></a>
+</div>
+<p>Now require the controllers.</p>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript">    <span class="hljs-keyword">for</span> (i = <span class="hljs-number">0</span>; i &lt; allControllers.length; ++i) {
+      cntrlOutput += <span class="hljs-string">'\n\n'</span>;
+      <span class="hljs-keyword">var</span> cntrlObj = <span class="hljs-built_in">require</span>(allControllers[i]);
+      <span class="hljs-keyword">if</span> (cntrlObj) {
+        loadedControllersObj.push(cntrlObj);
+        cntrlOutput += <span class="hljs-string">'Controller Name |'</span> + path.basename(allControllers[i] + <span class="hljs-string">'\n'</span>);
+        <span class="hljs-keyword">new</span> loadedControllersObj[loadedControllersObj.length - <span class="hljs-number">1</span>](app);
+        cntrlOutput += <span class="hljs-string">'\n'</span>;
+        <span class="hljs-keyword">continue</span>;
+      }
+      cntrlOutput += <span class="hljs-string">'Error while loading controller - '</span> + path.basename(allControllers[i]);
+      cntrlOutput += <span class="hljs-string">'\n'</span>;
+    }
+    cntrlOutput += <span class="hljs-string">'\nDone.\n'</span>;
+    cntrlOutput += <span class="hljs-string">'\n'</span>;
+    loadedControllersObj.length = <span class="hljs-number">0</span>;
+  };
+
+  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">_loadCronJobs</span>(<span class="hljs-params"></span>) </span>{
+    <span class="hljs-keyword">var</span> cronDir = __CONFIG__.app_base_path + <span class="hljs-string">'cron/'</span>;
+    <span class="hljs-keyword">var</span> files = fs.readdirSync(cronDir);
+    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> i = <span class="hljs-number">0</span>; i !== files.length; ++i) { 
+      <span class="hljs-keyword">if</span>(path.extname(files[i]) !== <span class="hljs-string">'js'</span>) {
+        <span class="hljs-keyword">continue</span>;
+      }     
+      <span class="hljs-built_in">require</span>(cronDir + files[i]);
+    }
+  };    
+
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-10" id="section-10"></a>
+</div>
+<p>Not found handler.</p>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript">  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">_notFound</span>(<span class="hljs-params">request, response</span>) </span>{
+    <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> LoadCustomApi.notFound === <span class="hljs-string">'function'</span>) {
+      LoadCustomApi.notFound(request, response);
+    } <span class="hljs-keyword">else</span> {
+      response.status(GetStatus(<span class="hljs-string">'notFound'</span>)).json({
+        <span class="hljs-string">'status'</span>: <span class="hljs-string">'fail'</span>,
+        <span class="hljs-string">'data'</span>: <span class="hljs-string">'The requested url "'</span> + request.originalUrl + <span class="hljs-string">'" is not supported by this service.'</span>
+      });
+    }
+  };
+
+  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">_logRequestResponse</span>(<span class="hljs-params">request, response</span>) </span>{
+    <span class="hljs-keyword">if</span> (!__CONFIG__.log_to_slogger) {
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-11" id="section-11"></a>
+</div>
+<p>Logging is turned off.</p>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript">      <span class="hljs-keyword">return</span>;
+    }
+    <span class="hljs-keyword">var</span> logMessage = <span class="hljs-string">''</span>;
+    <span class="hljs-keyword">var</span> stackTrace = <span class="hljs-string">'\n\n----- REQUEST ----\n\n'</span>;
+    stackTrace += <span class="hljs-string">'HTTP Method : '</span> + request.method + <span class="hljs-string">'\n'</span>;
+    stackTrace += <span class="hljs-string">'Request Headers : '</span> + util.inspect(request.headers, {
+      <span class="hljs-attr">depth</span>: <span class="hljs-number">3</span>
+    }) + <span class="hljs-string">'\n'</span>;
+    _getRequestData(request, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">err, data</span>) </span>{
+      <span class="hljs-keyword">if</span> (err) {
+        <span class="hljs-keyword">return</span>;
+      }
+      <span class="hljs-keyword">if</span> (data) {
+        <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> data === <span class="hljs-string">'string'</span>) {
+          stackTrace += <span class="hljs-string">'Data Sent : '</span> + data;
+        } <span class="hljs-keyword">else</span> {
+          stackTrace += <span class="hljs-string">'Data Sent : '</span> + util.inspect(data, {
+            <span class="hljs-attr">depth</span>: <span class="hljs-number">3</span>
+          });
+        }
+      }
+      <span class="hljs-keyword">var</span> responseBody = <span class="hljs-string">''</span>;
+      <span class="hljs-keyword">var</span> responseMessage = <span class="hljs-string">''</span>;
+      <span class="hljs-keyword">if</span> (response.dataSentToClient) {
+        responseBody = util.inspect(response.dataSentToClient, {
+          <span class="hljs-attr">depth</span>: <span class="hljs-number">3</span>
+        });
+      } <span class="hljs-keyword">else</span> {
+        responseBody = <span class="hljs-string">'Was this a file download request?? If not, '</span> +
+          <span class="hljs-string">'there was an error while reading the response body!'</span>;
+      }
+      <span class="hljs-keyword">if</span> (response.msgSentToClient) {
+        responseMessage = util.inspect(response.msgSentToClient, {
+          <span class="hljs-attr">depth</span>: <span class="hljs-number">3</span>
+        });
+      }
+
+      stackTrace += <span class="hljs-string">'\n\n----- RESPONSE ----\n\n'</span>;
+      stackTrace += <span class="hljs-string">'Status : '</span> + response.statusCode + <span class="hljs-string">'\n'</span>;
+      stackTrace += <span class="hljs-string">'Message : '</span> + responseMessage + <span class="hljs-string">'\n'</span>;
+      stackTrace += <span class="hljs-string">'Response Data: \n\n'</span> + responseBody;
+      logMessage = <span class="hljs-string">'['</span> + <span class="hljs-keyword">new</span> <span class="hljs-built_in">Date</span>().toUTCString() + <span class="hljs-string">'] Logging REQUEST/RESPONSE to '</span> + request.ip + <span class="hljs-string">' for '</span> + request.originalUrl;
+      Slogger.log(logMessage, stackTrace, <span class="hljs-number">1</span>);
+    });
+  };
+
+  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">_getRequestData</span>(<span class="hljs-params">request, cb</span>) </span>{
+    <span class="hljs-keyword">if</span> (request.method === <span class="hljs-string">'POST'</span>) {
+      <span class="hljs-keyword">var</span> body = <span class="hljs-string">''</span>;
+      <span class="hljs-keyword">var</span> hasError = <span class="hljs-literal">false</span>;
+      request.on(<span class="hljs-string">'data'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">data</span>) </span>{
+        body += data;
+        request.body = body;
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-12" id="section-12"></a>
+</div>
+<p>Too much POST data, kill the connection!</p>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript">        <span class="hljs-keyword">if</span> (body.length &gt; <span class="hljs-number">1e6</span>) {
+          request.connection.destroy();
+        }
+      });
+
+      request.on(<span class="hljs-string">'error'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">e</span>) </span>{
+        request.end();
+        hasError = <span class="hljs-literal">true</span>;
+        <span class="hljs-keyword">return</span> cb(e);
+      });
+
+      request.on(<span class="hljs-string">'end'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+        <span class="hljs-keyword">if</span> (!hasError) {
+          cb(<span class="hljs-literal">null</span>, body);
+        }
+      });
+    } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (request.method === <span class="hljs-string">'GET'</span>) {
+      <span class="hljs-keyword">return</span> cb(<span class="hljs-literal">null</span>, {
+        <span class="hljs-attr">params</span>: request.params,
+        <span class="hljs-attr">query</span>: request.query
+      });
+    } <span class="hljs-keyword">else</span> {
+      cb(<span class="hljs-literal">null</span>, <span class="hljs-literal">null</span>);
+    }
+  };
+
+  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">_writeServerStartupLogs</span>(<span class="hljs-params"></span>) </span>{
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-13" id="section-13"></a>
+</div>
+<p>TODO : will be called many times, not a good model, need to find alternative.</p>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript">    <span class="hljs-keyword">var</span> now = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Date</span>();
+    <span class="hljs-keyword">var</span> serverLogFile = <span class="hljs-string">'server-startup-log.csv'</span>;
+    <span class="hljs-keyword">var</span> nowUTC = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Date</span>(now.getUTCFullYear(), now.getUTCMonth(),
+      now.getUTCDate(), now.getUTCHours(), now.getUTCMinutes(), now.getUTCSeconds());
+
+    <span class="hljs-keyword">if</span> (fs.existsSync(__CONFIG__.log_folder_path + serverLogFile)) {
+      fs.unlinkSync(__CONFIG__.log_folder_path + serverLogFile);
+    }
+    fs.writeFileSync(__CONFIG__.log_folder_path + serverLogFile, <span class="hljs-string">'Server started at |'</span> + nowUTC.toLocaleString() + <span class="hljs-string">'\n-------\n'</span> 
+      + <span class="hljs-string">'Type|URL|Access Type|Admin only?'</span> + <span class="hljs-string">'\n-------\n'</span> + cntrlOutput);
+  };
+
+  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">logServerPerformance</span>(<span class="hljs-params">request, response, isClosed</span>) </span>{    
+      <span class="hljs-keyword">if</span> (response.hasOwnProperty(<span class="hljs-string">'performanceInfo'</span>) &amp;&amp;
+        response.performanceInfo.logPerformance === <span class="hljs-literal">true</span> &amp;&amp;
+        !response.performanceInfo.isLogged) {
+        writePerformanceLog(request, response, isClosed);
+        response.performanceInfo.isLogged = <span class="hljs-literal">true</span>;
+      }    
+  };
+
+  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">writePerformanceLog</span>(<span class="hljs-params">request, response, isClosed</span>) </span>{
+    <span class="hljs-keyword">try</span> {
+      <span class="hljs-keyword">var</span> endTimestamp = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Date</span>().getTime();
+      <span class="hljs-keyword">var</span> processTime = (endTimestamp - response.performanceInfo.startTimestamp) / <span class="hljs-number">1000</span>;
+      <span class="hljs-keyword">var</span> requestSize = <span class="hljs-number">0</span>;
+      <span class="hljs-keyword">if</span> (request.body) {
+        requestSize = RouteHelper.getByteCount(util.inspect(request.body, {
+          <span class="hljs-attr">depth</span>: <span class="hljs-number">5</span>
+        }));
+      }
+      <span class="hljs-keyword">var</span> responseSize = RouteHelper.getByteCount(util.inspect(response.dataSentToClient, {
+        <span class="hljs-attr">depth</span>: <span class="hljs-number">5</span>
+      }));
+      <span class="hljs-keyword">var</span> path = __CONFIG__.getLogsFolderPath() + __CONFIG__.maintInfoFileName;
+      <span class="hljs-keyword">var</span> startTime = moment(<span class="hljs-keyword">new</span> <span class="hljs-built_in">Date</span>(response.performanceInfo.startTimestamp)).format(<span class="hljs-string">'MMM DD YYYY HH:mm:ss:SSS'</span>);
+      endTimestamp = moment(<span class="hljs-keyword">new</span> <span class="hljs-built_in">Date</span>(endTimestamp)).format(<span class="hljs-string">'MMM DD YYYY HH:mm:ss:SSS'</span>);
+      endTimestamp += (isClosed) ? <span class="hljs-string">' [CLOSED]'</span> : <span class="hljs-string">''</span>;
+      <span class="hljs-keyword">var</span> performanceLog = <span class="hljs-string">''</span>;
+      <span class="hljs-keyword">if</span> (!response.performanceInfo.performanceLog) {
+        response.performanceInfo.performanceLog = <span class="hljs-string">''</span>;
+      }
+      <span class="hljs-keyword">if</span> (!response.performanceInfo.performanceHeaders) {
+        response.performanceInfo.performanceHeaders = <span class="hljs-string">''</span>;
+      }
+      fs.stat(path, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">err, stats</span>) </span>{
+        <span class="hljs-keyword">if</span> (err &amp;&amp; err.code === <span class="hljs-string">'ENOENT'</span>) {
+          performanceLog += response.performanceInfo.performanceHeaders + <span class="hljs-string">', Request start time, Request end time, Request '</span> 
+            + <span class="hljs-string">'processing time (sec), Request size (bytes), Response size (bytes)'</span>;
+          performanceLog += <span class="hljs-string">'\r\n'</span>;
+          performanceLog += response.performanceInfo.performanceLog + <span class="hljs-string">','</span> + startTime + <span class="hljs-string">','</span> + endTimestamp + <span class="hljs-string">','</span> + processTime +
+            <span class="hljs-string">','</span> + requestSize + <span class="hljs-string">','</span> + responseSize;
+          performanceLog += <span class="hljs-string">'\r\n'</span>;
+        } <span class="hljs-keyword">else</span> {
+          performanceLog += response.performanceInfo.performanceLog + <span class="hljs-string">','</span> + startTime + <span class="hljs-string">','</span> + endTimestamp + <span class="hljs-string">','</span> + processTime +
+            <span class="hljs-string">','</span> + requestSize + <span class="hljs-string">','</span> + responseSize;
+          performanceLog += <span class="hljs-string">'\r\n'</span>;
+        }
+        fs.appendFile(path, performanceLog, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">err</span>) </span>{
+          <span class="hljs-keyword">if</span> (err) {
+            <span class="hljs-keyword">new</span> AppError(err, <span class="hljs-string">'There was an error while logging the maintenance calls info.'</span>, {});
+          }
+        });
+      });
+    } <span class="hljs-keyword">catch</span> (e) {
+      <span class="hljs-keyword">new</span> AppError(e, <span class="hljs-string">'Something went wrong while writing the maintenance logs.'</span>, {});
+    }
+    <span class="hljs-keyword">return</span>;
+  };  
+
+  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">getDefaultRouteObj</span>(<span class="hljs-params"></span>) </span>{
+    <span class="hljs-keyword">var</span> routeObj = {
+      <span class="hljs-attr">isAdmin</span>: <span class="hljs-literal">false</span>,
+      <span class="hljs-attr">isPublic</span>: <span class="hljs-literal">false</span>,
+      <span class="hljs-attr">enableCompression</span>: <span class="hljs-literal">true</span>
+    };
+    <span class="hljs-keyword">return</span> routeObj;
+  }    
+  
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-14" id="section-14"></a>
+</div>
+<div class="dox">
+<div class="summary">
+<p>Common method to bind different type of requests to the express app
+Checks</p>
+</div>
+<div class="body">
+</div>
+</div>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript">  <span class="hljs-keyword">var</span> bindHttpRequest = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">routeObj</span>) </span>{
+    <span class="hljs-keyword">var</span> urlMethod = routeObj.method.toUpperCase() + <span class="hljs-string">'|'</span> + routeObj.url;
+    <span class="hljs-keyword">if</span> (routeObj.isPublic) {
+      urlMethod += <span class="hljs-string">'|Public'</span>;
+    } <span class="hljs-keyword">else</span> {
+      urlMethod += <span class="hljs-string">'|Not Public'</span>;
+      <span class="hljs-keyword">if</span> (routeObj.isAdmin) {
+        urlMethod += <span class="hljs-string">'|Admin'</span>;
+      }
+    }
+    cntrlOutput += urlMethod + <span class="hljs-string">'\n'</span>;
+
+    <span class="hljs-keyword">if</span>(__CONFIG__.log_performance_info) {
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-15" id="section-15"></a>
+</div>
+<p>Performance logging is turned on.</p>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript">      app[routeObj.method](routeObj.url, logPerformanceRoute);        
+    }
+    
+    <span class="hljs-keyword">if</span> (__CONFIG__.enable_compression &amp;&amp; routeObj.enableCompression) {
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-16" id="section-16"></a>
+</div>
+<p>Enable compression</p>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript">      app[routeObj.method](routeObj.url, compression());
+    }
+    <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> LoadCustomApi.beforeRouteLoad === <span class="hljs-string">'function'</span>) {
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-17" id="section-17"></a>
+</div>
+<p>Before route load method has been added.</p>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript">      LoadCustomApi.beforeRouteLoad(routeObj.url, app);
+    }            
+    <span class="hljs-keyword">if</span> (routeObj.isPublic) {
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-18" id="section-18"></a>
+</div>
+<p>Public route, no validation required, call the route method.</p>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript">      app[routeObj.method](routeObj.url, routeObj.route);
+    } <span class="hljs-keyword">else</span> {
+      <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> LoadCustomApi.validate === <span class="hljs-string">'function'</span>) {
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-19" id="section-19"></a>
+</div>
+<p>Not a public route, and the custom API has a validate function.</p>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript">        app[routeObj.method](routeObj.url, LoadCustomApi.validate);
+      }
+      <span class="hljs-keyword">if</span> (routeObj.isAdmin &amp;&amp; <span class="hljs-keyword">typeof</span> LoadCustomApi.checkIfAdmin === <span class="hljs-string">'function'</span>) {
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-20" id="section-20"></a>
+</div>
+<p>Admin route, and the custom API has a checkIfAdmin function.</p>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript">        app[routeObj.method](routeObj.url, LoadCustomApi.checkIfAdmin);
+      }      
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-21" id="section-21"></a>
+</div>
+<p>Finally add the route.</p>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript">      app[routeObj.method](routeObj.url, routeObj.route);
+    }
+  };
+    
+  <span class="hljs-keyword">var</span> bindRequest = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">routeObj</span>) </span>{
+    routeObj.url = RouteHelper.normalizeUrl(routeObj.url);
+    routeObj.method = routeObj.method.toLowerCase();
+    <span class="hljs-keyword">if</span> (routeObj.isAdmin) {
+      routeObj.isPublic = <span class="hljs-literal">false</span>;
+    }
+    routeObj = __.extend(getDefaultRouteObj(), routeObj);
+
+    <span class="hljs-keyword">if</span> (routeObj.enableCompression === <span class="hljs-literal">false</span>) {
+      routeObj.enableCompression = <span class="hljs-literal">false</span>;
+    } <span class="hljs-keyword">else</span> {
+      routeObj.enableCompression = <span class="hljs-literal">true</span>;
+    }
+    
+    <span class="hljs-keyword">if</span> (validMethodTypes.indexOf(routeObj.method) !== <span class="hljs-number">-1</span>) {
+      routeObj.url = RouteHelper.getFinalUrl(routeObj.url, routeObj.isPublic);           
+      bindHttpRequest(routeObj);
+      routeObj = <span class="hljs-literal">null</span>;
+    } <span class="hljs-keyword">else</span> {
+      <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'Invalid method type for - '</span> + routeObj.url);
+    }
+  };
+  
+  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">logPerformanceRoute</span>(<span class="hljs-params">request, response, next</span>) </span>{
+      response.on(<span class="hljs-string">'close'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-22" id="section-22"></a>
+</div>
+<p>True indicates that the log is written on connection close.</p>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript">        logServerPerformance(request, response, <span class="hljs-literal">true</span>); 
+      });
+
+      response.on(<span class="hljs-string">'finish'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-23" id="section-23"></a>
+</div>
+<p>False indicates that the log is written after response has been sent.</p>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript">        logServerPerformance(request, response, <span class="hljs-literal">false</span>); 
+      });
+            
+      <span class="hljs-keyword">if</span>(next) {
+        next();
+      }
+  }
+  
+  <span class="hljs-keyword">return</span> {
+    <span class="hljs-attr">parseBodyType</span>: _parseBodyTypeValues,
+    <span class="hljs-attr">init</span>: _init,
+    <span class="hljs-attr">notFound</span>: _notFound,
+    <span class="hljs-attr">logRequestResponse</span>: _logRequestResponse,
+    <span class="hljs-attr">getRequestData</span>: _getRequestData,
+    <span class="hljs-attr">loadRoutes</span>: _loadRoutes,    
+    <span class="hljs-attr">loadCronJobs</span>: _loadCronJobs,
+    <span class="hljs-attr">writeServerStartupLogs</span>: _writeServerStartupLogs
+  };
+};
+
+<span class="hljs-built_in">module</span>.exports = serverHelper();
+
+</pre>
+        </td>
+      </tr>
+    
+  </tbody>
+</table>
+
+  </div>
+</body>
+</html>

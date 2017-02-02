@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>app-error.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" media="all" href="../../doc-style.css" />
+  <script src="../../doc-filelist.js"></script>
+  <script>
+    var relativeDir = "../../";
+    var thisFile = "app\\lib\\app-error.js";
+    var defaultSidebar = true;
+  </script>
+  <script src="../../doc-script.js"></script>
+
+</head>
+<body>
+  <div id="sidebar_wrapper">
+    <div id="sidebar_switch">
+      <span class="tree">Files</span>
+      <span class="headings">Headings</span>
+    </div>
+    <div id="tree"></div>
+    <div id="headings">
+
+    </div>
+  </div>
+  <div id="sidebar-toggle"></div>
+  <div id="container">
+    <div class="background highlight"></div>
+<table cellpadding="0" cellspacing="0">
+  <tbody>
+    
+      <tr>
+        <td class="docs">
+          <h1>app-error.js</h1>
+        </td>
+        <td class="code highlight"></td>
+      </tr>
+    
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-1" id="section-1"></a>
+</div>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript"><span class="hljs-keyword">var</span> __ = <span class="hljs-built_in">require</span>(<span class="hljs-string">'underscore'</span>);
+
+<span class="hljs-keyword">var</span> Logger = <span class="hljs-built_in">require</span>(__CONFIG__.app_base_path + <span class="hljs-string">'logger'</span>);
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-2" id="section-2"></a>
+</div>
+<div class="dox">
+<div class="summary">
+<p>A small wrapper around the error object for use within our app.</p>
+</div>
+<div class="body">
+</div>
+<div class="details">
+<div class="dox_tag_title">Params</div>
+<div class="dox_tag_detail">
+<span class="dox_tag_name">err</span>
+<span><ul>
+<li>
+<pre><code>     This can be either the error or the status.
+</code></pre>
+</li>
+</ul>
+</span>
+</div>
+<div class="dox_tag_detail">
+<span class="dox_tag_name">respMessage</span>
+<span><ul>
+<li>
+<pre><code>     This is the response message.
+</code></pre>
+</li>
+</ul>
+</span>
+</div>
+<div class="dox_tag_detail">
+<span class="dox_tag_name">status</span>
+<span><ul>
+<li>
+<pre><code>     This is sent only if the first parameter is an error object,
+   otherwise this can be sent as null.
+</code></pre>
+</li>
+</ul>
+</span>
+</div>
+<div class="dox_tag_detail">
+<span class="dox_tag_name">vObj</span>
+<span><ul>
+<li>
+<pre><code>     This object will be sent if it's a validation error.</code></pre>
+</li>
+</ul>
+</span>
+</div>
+</div>
+</div>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">AppError</span>(<span class="hljs-params">err, respMessage, vObj, logError</span>) </span>{<span class="hljs-meta">
+  'use strict'</span>;
+  <span class="hljs-keyword">this</span>.vObj = {};
+  <span class="hljs-keyword">var</span> objType = <span class="hljs-keyword">typeof</span>(err);
+  <span class="hljs-keyword">if</span> (objType === <span class="hljs-string">'object'</span> &amp;&amp; err <span class="hljs-keyword">instanceof</span> <span class="hljs-built_in">Error</span>) {
+    <span class="hljs-keyword">this</span>.stack = err.stack;
+    <span class="hljs-keyword">this</span>.message = err.message;
+    <span class="hljs-keyword">this</span>.appMessage = respMessage;
+    <span class="hljs-keyword">this</span>.isInternalErr = <span class="hljs-literal">true</span>;
+    <span class="hljs-keyword">if</span> (logError) {
+      <span class="hljs-keyword">this</span>.writeToLog();
+    }
+  } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (objType === <span class="hljs-string">'object'</span> &amp;&amp; err <span class="hljs-keyword">instanceof</span> AppError) {
+    <span class="hljs-keyword">this</span>.copyError(err, respMessage, vObj);
+  } <span class="hljs-keyword">else</span> {
+    <span class="hljs-keyword">this</span>.appMessage = respMessage;
+    <span class="hljs-keyword">this</span>.status = err;
+    <span class="hljs-keyword">this</span>.isInternalErr = <span class="hljs-literal">false</span>;
+    <span class="hljs-keyword">this</span>.validation = vObj;
+  }
+}
+
+AppError.prototype.writeToLog = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{<span class="hljs-meta">
+  'use strict'</span>;
+  <span class="hljs-keyword">var</span> strError = <span class="hljs-string">'AppMessage : '</span> + <span class="hljs-keyword">this</span>.appMessage + <span class="hljs-string">' \n'</span>;
+  <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.isInternalErr) {
+    strError += <span class="hljs-string">'StackTrace : '</span> + <span class="hljs-keyword">this</span>.stack + <span class="hljs-string">' \n'</span>;
+    strError += <span class="hljs-string">'Message : '</span> + <span class="hljs-keyword">this</span>.message + <span class="hljs-string">' \n'</span>;
+  }
+  strError += <span class="hljs-string">'-----------\n\n'</span>;
+  Logger.writeLogErr(strError);
+};
+
+AppError.prototype.setAppMessage = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">message</span>) </span>{<span class="hljs-meta">
+  'use strict'</span>;
+  <span class="hljs-keyword">this</span>.appMessage = message;
+};
+
+AppError.prototype.copyError = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">err, respMessage, vObj</span>) </span>{<span class="hljs-meta">
+  'use strict'</span>;
+  <span class="hljs-keyword">this</span>.isInternalErr = err.isInternalErr;
+  <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.isInternalErr) {
+    <span class="hljs-keyword">this</span>.stack = err.stack;
+  } <span class="hljs-keyword">else</span> {
+    <span class="hljs-keyword">this</span>.status = err.status;
+  }
+  <span class="hljs-keyword">this</span>.appMessage = err.appMessage;
+  <span class="hljs-keyword">if</span> (__.isEmpty(<span class="hljs-keyword">this</span>.appMessage)) {
+    <span class="hljs-keyword">this</span>.appMessage = respMessage;
+  }
+  <span class="hljs-keyword">this</span>.message = err.message;
+  <span class="hljs-keyword">if</span> (!err.vObj) {
+    err.vObj = {};
+  }
+  <span class="hljs-keyword">this</span>.validation = __.extend(err.validation, vObj);
+};
+
+<span class="hljs-built_in">module</span>.exports = AppError;
+
+</pre>
+        </td>
+      </tr>
+    
+  </tbody>
+</table>
+
+  </div>
+</body>
+</html>

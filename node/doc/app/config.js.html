@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>config.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" media="all" href="../doc-style.css" />
+  <script src="../doc-filelist.js"></script>
+  <script>
+    var relativeDir = "../";
+    var thisFile = "app\\config.js";
+    var defaultSidebar = true;
+  </script>
+  <script src="../doc-script.js"></script>
+
+</head>
+<body>
+  <div id="sidebar_wrapper">
+    <div id="sidebar_switch">
+      <span class="tree">Files</span>
+      <span class="headings">Headings</span>
+    </div>
+    <div id="tree"></div>
+    <div id="headings">
+
+    </div>
+  </div>
+  <div id="sidebar-toggle"></div>
+  <div id="container">
+    <div class="background highlight"></div>
+<table cellpadding="0" cellspacing="0">
+  <tbody>
+    
+      <tr>
+        <td class="docs">
+          <h1>config.js</h1>
+        </td>
+        <td class="code highlight"></td>
+      </tr>
+    
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-1" id="section-1"></a>
+</div>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript"><span class="hljs-comment">/* global __CONFIG__ */</span>
+<span class="hljs-keyword">var</span> DBConfig = <span class="hljs-built_in">require</span>(__dirname + <span class="hljs-string">'/db-config.js'</span>);
+<span class="hljs-keyword">var</span> NetworkUtils = <span class="hljs-built_in">require</span>(__dirname + <span class="hljs-string">'/lib/helpers/network-utils'</span>);
+
+<span class="hljs-keyword">var</span> config = <span class="hljs-built_in">module</span>.exports;
+
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-2" id="section-2"></a>
+</div>
+<p>get the environment variables</p>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript"><span class="hljs-keyword">var</span> isProduction = (process.env.NODE_ENV === <span class="hljs-string">'production'</span>) ? <span class="hljs-literal">true</span> : <span class="hljs-literal">false</span>;
+<span class="hljs-keyword">var</span> logDir = process.env.OSM_LOG_DIR || (__dirname + <span class="hljs-string">'/../logs/'</span>);
+<span class="hljs-keyword">var</span> networkInterfaceName = process.env.OSM_NETWORK_INTERFACE || <span class="hljs-string">'eth0'</span>;
+<span class="hljs-keyword">var</span> port = process.env.OSM_HTTP_PORT || <span class="hljs-number">3000</span>;
+<span class="hljs-keyword">var</span> httpsPort = process.env.OSM_HTTPS_PORT || <span class="hljs-number">443</span>;
+<span class="hljs-keyword">var</span> emailsToSend = process.env.OSM_SUPPORT_EMAIL_ADDRS || <span class="hljs-string">'surendra.b@osmosys.asia'</span>;
+<span class="hljs-keyword">var</span> debugSupportMails = process.env.OSM_DEBUG_EMAIL_ADDRS || <span class="hljs-string">'surendra.b@osmosys.asia'</span>;
+<span class="hljs-keyword">var</span> slogerrUrl = process.env.OSM_LOGGER_URL || <span class="hljs-string">'http://log.osmosys.asia/api/log/WriteLog1'</span>;
+<span class="hljs-keyword">var</span> slogerrAppID = process.env.OSM_LOGGER_API_ID || <span class="hljs-string">'551a6f48-e2c4-45aa-80e5-1de45a0bc003'</span>;
+<span class="hljs-keyword">var</span> isClusterDisabled = (process.env.OSM_CLUSTER_DISABLED === <span class="hljs-string">"true"</span>) ? <span class="hljs-literal">true</span> : <span class="hljs-literal">false</span>;
+<span class="hljs-keyword">var</span> isHttps = (process.env.OSM_HTTPS_ENABLED === <span class="hljs-string">"true"</span>) ? <span class="hljs-literal">true</span> : <span class="hljs-literal">false</span>;
+<span class="hljs-keyword">var</span> emailServer = process.env.OSM_EMAIL_SERVER || <span class="hljs-string">'mail.osmosys.asia'</span>;
+<span class="hljs-keyword">var</span> emailPort = process.env.OSM_EMAIL_PORT || <span class="hljs-number">587</span>;
+<span class="hljs-keyword">var</span> emailUsername = process.env.OSM_EMAIL_USERNAME || <span class="hljs-string">'emanate@osmosys.asia'</span>;
+<span class="hljs-keyword">var</span> emailPassword = process.env.OSM_EMAIL_PASSWORD || <span class="hljs-string">'Emanat3!1'</span>;
+<span class="hljs-keyword">var</span> emailFromName = process.env.OSM_EMAIL_FROM_NAME || <span class="hljs-string">'The Emanate Wireless Team'</span>;
+<span class="hljs-keyword">var</span> emailMaxCon = process.env.OSM_EMAIL_MAX_CON || <span class="hljs-number">5</span>;
+<span class="hljs-keyword">var</span> emailMaxMsgPerCon = process.env.OSM_EMAIL_MAX_MSG_PER_CON || <span class="hljs-number">20</span>;
+<span class="hljs-keyword">var</span> emailsToSend = process.env.OSM_SUPPORT_EMAIL_ADDRS || <span class="hljs-string">'surendra.b@osmosys.asia'</span>;
+<span class="hljs-keyword">var</span> debugSupportMails = process.env.OSM_DEBUG_EMAIL_ADDRS || <span class="hljs-string">'surendra.b@osmosys.asia'</span>;
+<span class="hljs-keyword">var</span> isEmailSecure = (process.env.OSM_SECURE_EMAIL === <span class="hljs-string">"true"</span>) ? <span class="hljs-literal">true</span> : <span class="hljs-literal">false</span>;
+
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-3" id="section-3"></a>
+</div>
+<p>get the ip-address associated with the configured network interface name</p>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript"><span class="hljs-keyword">var</span> ipAddress = NetworkUtils.getIpAddressForNetworkInterface(networkInterfaceName) || <span class="hljs-string">'localhost'</span>;
+
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-4" id="section-4"></a>
+</div>
+<p>set the api base url's for the http and https interfaces</p>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript"><span class="hljs-keyword">var</span> app_http_base_url = process.env.OSM_API_HTTP_BASE_URL || <span class="hljs-string">'http://'</span> + ipAddress + <span class="hljs-string">':'</span> + port;
+<span class="hljs-keyword">var</span> app_https_base_url = process.env.OSM_API_HTTPS_BASE_URL || <span class="hljs-string">'https://'</span> + ipAddress + <span class="hljs-string">':'</span> + httpsPort;
+
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-5" id="section-5"></a>
+</div>
+<p>validate and format the environment variable settings if needed</p>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript"><span class="hljs-keyword">if</span> (logDir.slice(<span class="hljs-number">-1</span>) != <span class="hljs-string">"/"</span>) {
+  logDir = logDir + <span class="hljs-string">"/"</span>;
+}
+<span class="hljs-keyword">if</span> (app_http_base_url.slice(<span class="hljs-number">-1</span>) != <span class="hljs-string">"/"</span>) {
+  app_http_base_url = app_http_base_url + <span class="hljs-string">"/"</span>;
+}
+<span class="hljs-keyword">if</span> (app_https_base_url.slice(<span class="hljs-number">-1</span>) != <span class="hljs-string">"/"</span>) {
+  app_https_base_url = app_https_base_url + <span class="hljs-string">"/"</span>;
+}
+
+global.__CONFIG__ = {
+  <span class="hljs-string">'app_base_path'</span>: __dirname + <span class="hljs-string">'/'</span>,
+  <span class="hljs-string">'app_code_path'</span>: __dirname + <span class="hljs-string">'/code/'</span>,
+  <span class="hljs-string">'app_lib_path'</span> : __dirname + <span class="hljs-string">'/lib/'</span>,
+  <span class="hljs-string">'app_helper_path'</span> : __dirname + <span class="hljs-string">'/lib/helpers/'</span>,
+  <span class="hljs-string">'app_base_url'</span>: <span class="hljs-string">'/api/v1/'</span>,  
+  <span class="hljs-string">'app_http_base_url'</span>: (isHttps) ? app_https_base_url : app_http_base_url,
+  <span class="hljs-string">'app_transaction_prop'</span>: <span class="hljs-string">'transactionID'</span>,
+  <span class="hljs-string">'enable_compression'</span>: <span class="hljs-literal">true</span>,  
+  <span class="hljs-string">'log_folder_path'</span>: logDir,  
+  <span class="hljs-string">'is_https'</span>: isHttps,
+  <span class="hljs-string">'is_cluster_disabled'</span>: isClusterDisabled,
+  <span class="hljs-string">'email'</span>: {
+    <span class="hljs-string">'server'</span>: emailServer,
+    <span class="hljs-string">'username'</span>: emailUsername,
+    <span class="hljs-string">'password'</span>: emailPassword,
+    <span class="hljs-string">'port'</span>: emailPort,
+    <span class="hljs-string">'from_name'</span>: emailFromName,
+    <span class="hljs-string">'max_con'</span>: emailMaxCon,
+    <span class="hljs-string">'max_msg_per_con'</span>: emailMaxMsgPerCon,
+    <span class="hljs-string">'emails_to_send'</span>: emailsToSend,
+    <span class="hljs-string">'debug_mails'</span> : debugSupportMails,
+    <span class="hljs-string">'secure'</span>: isEmailSecure
+  },
+  <span class="hljs-string">'user'</span>: {
+    <span class="hljs-string">'default_password'</span>: <span class="hljs-string">'cb8da6a0-776f-4f2e-acba-9055b7bcb3a5'</span>,
+    <span class="hljs-string">'default_organization'</span>: <span class="hljs-string">'an organization'</span>,
+    <span class="hljs-string">'default_pass_encrypt_rounds'</span>: <span class="hljs-number">10</span>,
+    <span class="hljs-string">'default_forgot_pass_time'</span>: <span class="hljs-number">6</span>, <span class="hljs-comment">// hours</span>
+    <span class="hljs-string">'default_created_by'</span>: <span class="hljs-string">'NodeJS'</span>
+  },        
+  <span class="hljs-string">'date_format'</span>: <span class="hljs-string">'MMMM Do YYYY, h:mm:ss a'</span>,  
+  <span class="hljs-string">'log_txt_format'</span>: <span class="hljs-literal">true</span>,
+  <span class="hljs-string">'token_length'</span>: <span class="hljs-number">16</span>,
+  <span class="hljs-string">'fw_token_length'</span>: <span class="hljs-number">16</span>,  
+  <span class="hljs-string">'files_folder_name'</span>: <span class="hljs-string">'files'</span>,  
+  <span class="hljs-string">'max_decimal_length'</span>: <span class="hljs-number">2</span>,       
+  <span class="hljs-string">'log_to_slogger'</span>: <span class="hljs-literal">false</span>,
+  <span class="hljs-string">'slogger_app_id'</span>: slogerrAppID,
+  <span class="hljs-string">'slogger_url'</span>: slogerrUrl,
+  <span class="hljs-string">'ex'</span>: [],  
+  <span class="hljs-string">'default_timezone'</span>: <span class="hljs-string">'America/New_York'</span>,    
+  <span class="hljs-string">'log_performance_info'</span>: <span class="hljs-literal">true</span>,  
+  <span class="hljs-string">'ssl_config'</span>: {
+    <span class="hljs-string">'ssl_cert'</span>: <span class="hljs-string">'ssl_https.pfx'</span>,
+    <span class="hljs-string">'passphrase'</span>: <span class="hljs-string">'password'</span>
+  },
+  <span class="hljs-string">'cron_time'</span> : <span class="hljs-number">60000</span>,
+  <span class="hljs-string">'excluded_controllers'</span> : []
+};
+
+__CONFIG__.is_production = isProduction;
+__CONFIG__.email.baseURL = __CONFIG__.app_http_base_url;
+__CONFIG__.app_api_url = __CONFIG__.app_http_base_url.replace(<span class="hljs-regexp">/\/+$/</span>, <span class="hljs-string">''</span>) + __CONFIG__.app_base_url;
+
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-6" id="section-6"></a>
+</div>
+<div class="dox">
+<div class="summary">
+<p>Returns the path the files folder</p>
+</div>
+<div class="body">
+</div>
+</div>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript">__CONFIG__.getFilesFolderPath = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+  <span class="hljs-keyword">return</span> __CONFIG__.app_base_path + <span class="hljs-string">'../'</span> + __CONFIG__.files_folder_name + <span class="hljs-string">'/'</span>;
+};
+
+__CONFIG__.getUploadsFolderPath = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+  <span class="hljs-keyword">return</span> __dirname + <span class="hljs-string">'/../uploads'</span>;
+};
+
+__CONFIG__.getLogsFolderPath = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+  <span class="hljs-keyword">return</span> __CONFIG__.app_base_path + <span class="hljs-string">'../logs/'</span>;
+};
+
+config.express = {
+  <span class="hljs-attr">port</span>: process.env.EXPRESS_PORT || port,
+  <span class="hljs-attr">ip</span>: ipAddress,
+  <span class="hljs-attr">is_production</span>: isProduction,
+  <span class="hljs-attr">http_port</span>: httpsPort
+};
+
+</pre>
+        </td>
+      </tr>
+    
+  </tbody>
+</table>
+
+  </div>
+</body>
+</html>

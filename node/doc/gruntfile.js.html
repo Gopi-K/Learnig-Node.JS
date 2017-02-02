@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>gruntfile.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" media="all" href="doc-style.css" />
+  <script src="doc-filelist.js"></script>
+  <script>
+    var relativeDir = "";
+    var thisFile = "gruntfile.js";
+    var defaultSidebar = true;
+  </script>
+  <script src="doc-script.js"></script>
+
+</head>
+<body>
+  <div id="sidebar_wrapper">
+    <div id="sidebar_switch">
+      <span class="tree">Files</span>
+      <span class="headings">Headings</span>
+    </div>
+    <div id="tree"></div>
+    <div id="headings">
+
+    </div>
+  </div>
+  <div id="sidebar-toggle"></div>
+  <div id="container">
+    <div class="background highlight"></div>
+<table cellpadding="0" cellspacing="0">
+  <tbody>
+    
+      <tr>
+        <td class="docs">
+          <h1>gruntfile.js</h1>
+        </td>
+        <td class="code highlight"></td>
+      </tr>
+    
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-1" id="section-1"></a>
+</div>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript"><span class="hljs-built_in">module</span>.exports = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">grunt</span>) </span>{
+  <span class="hljs-keyword">var</span> codePath = __dirname + <span class="hljs-string">'/app/code/'</span>;
+  <span class="hljs-keyword">var</span> publicHTML = codePath + <span class="hljs-string">'public_html/'</span>;
+  <span class="hljs-keyword">var</span> codeBasePath = __dirname + <span class="hljs-string">'/app/'</span>;
+
+  <span class="hljs-keyword">var</span> gridFiles = [
+    <span class="hljs-string">"plugins/jqxwidgets/jqxcore.js"</span>, <span class="hljs-string">"plugins/jqxwidgets/jqxdata.js"</span>,
+    <span class="hljs-string">"plugins/jqxwidgets/jqxgrid.js"</span>,
+    <span class="hljs-string">"plugins/jqxwidgets/jqxgrid.sort.js"</span>,
+    <span class="hljs-string">"plugins/jqxwidgets/jqxgrid.pager.js"</span>,
+    <span class="hljs-string">"plugins/jqxwidgets/jqxgrid.selection.js"</span>,
+    <span class="hljs-string">"plugins/jqxwidgets/jqxgrid.sort.js"</span>,
+    <span class="hljs-string">"plugins/jqxwidgets/jqxgrid.aggregates.js"</span>,
+    <span class="hljs-string">"plugins/jqxwidgets/jqxbuttons.js"</span>,
+    <span class="hljs-string">"plugins/jqxwidgets/jqxscrollbar.js"</span>,
+    <span class="hljs-string">"plugins/jqxwidgets/jqxgrid.columnsresize.js"</span>,
+    <span class="hljs-string">"plugins/jqxwidgets/jqxgrid.columnsreorder.js"</span>,
+    <span class="hljs-string">"plugins/jqxwidgets/jqxdropdownlist.js"</span>,
+    <span class="hljs-string">"plugins/jqxwidgets/jqxlistbox.js"</span>,
+    <span class="hljs-string">"plugins/jqxwidgets/jqxmenu.js"</span>,
+    <span class="hljs-string">"plugins/jqxwidgets/jqxcheckbox.js"</span>,
+    <span class="hljs-string">"plugins/jqxwidgets/jqxgrid.storage.js"</span>,
+    <span class="hljs-string">"plugins/jqxwidgets/jqxdraw.js"</span>,
+    <span class="hljs-string">"plugins/jqxwidgets/jqxchart.core.js"</span>,
+    <span class="hljs-string">"plugins/jqxwidgets/jqxgrid.filter.js"</span>
+  ];
+  
+  <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> i = <span class="hljs-number">0</span>; i &lt; gridFiles.length; ++i) {
+    gridFiles[i] = publicHTML + gridFiles[i];
+  }
+
+  <span class="hljs-keyword">var</span> minifyFiles = {};
+  minifyFiles[publicHTML + <span class="hljs-string">'/dist/emanate.main.min.js'</span>] = [publicHTML +
+    <span class="hljs-string">'js/*.js'</span>
+  ];
+  minifyFiles[publicHTML + <span class="hljs-string">'/dist/emanate.ng.min.js'</span>] = [publicHTML +
+    <span class="hljs-string">'js/app/*.js'</span>,
+  ];
+  minifyFiles[publicHTML + <span class="hljs-string">'/dist/emanate.grid.min.js'</span>] = gridFiles;
+
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-2" id="section-2"></a>
+</div>
+<p>Project configuration.</p>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript">  <span class="hljs-built_in">console</span>.log([codePath + <span class="hljs-string">'*.js'</span>, publicHTML + <span class="hljs-string">'js/'</span>, <span class="hljs-string">'!'</span> + publicHTML +
+    <span class="hljs-string">'plugins/'</span>, <span class="hljs-string">'!*.min.js'</span>
+  ]);
+  grunt.initConfig({
+    <span class="hljs-attr">pkg</span>: grunt.file.readJSON(<span class="hljs-string">'package.json'</span>),
+    <span class="hljs-attr">uglify</span>: {
+      <span class="hljs-attr">prodclient</span>: {
+        <span class="hljs-attr">files</span>: minifyFiles
+      }, <span class="hljs-attr">options</span>: {
+    	    <span class="hljs-attr">mangle</span>: <span class="hljs-literal">true</span>
+      },
+    },
+    <span class="hljs-attr">jsbeautifier</span>: {
+      <span class="hljs-attr">files</span>: [codePath + <span class="hljs-string">'*.js'</span>, codePath + <span class="hljs-string">'**/*.js'</span>, codeBasePath + <span class="hljs-string">'**/*.js'</span>, publicHTML +
+        <span class="hljs-string">'js/**/*.js'</span>, <span class="hljs-string">'!'</span> + publicHTML + <span class="hljs-string">'plugins/**'</span>, <span class="hljs-string">'!'</span> + codePath +
+        <span class="hljs-string">'**/*.min.js'</span>
+      ],
+      <span class="hljs-attr">options</span>: {
+        <span class="hljs-attr">js</span>: {
+          <span class="hljs-attr">indentChar</span>: <span class="hljs-string">' '</span>,
+          <span class="hljs-attr">indentSize</span>: <span class="hljs-number">2</span>,
+        }
+      }
+    },
+    <span class="hljs-attr">ngAnnotate</span>: {
+      <span class="hljs-attr">options</span>: {
+        <span class="hljs-attr">singleQuotes</span>: <span class="hljs-literal">true</span>,
+      },
+      <span class="hljs-attr">files</span>: {
+        <span class="hljs-attr">expand</span>: <span class="hljs-literal">true</span>,
+        <span class="hljs-attr">src</span>: [ publicHTML + <span class="hljs-string">'js/app.js'</span>, publicHTML + <span class="hljs-string">'js/app/*.js'</span>]
+      }
+    }
+  });
+
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-3" id="section-3"></a>
+</div>
+<p>Load the plugin that provides the &quot;uglify&quot; task.</p>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript">  grunt.loadNpmTasks(<span class="hljs-string">'grunt-contrib-uglify'</span>);
+  grunt.loadNpmTasks(<span class="hljs-string">"grunt-jsbeautifier"</span>);
+  grunt.loadNpmTasks(<span class="hljs-string">'grunt-ng-annotate'</span>);
+
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-4" id="section-4"></a>
+</div>
+<p>Default task(s).</p>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript">  grunt.registerTask(<span class="hljs-string">'default'</span>, [ <span class="hljs-string">'ngAnnotate'</span>, <span class="hljs-string">'uglify:prodclient'</span>]);
+  grunt.registerTask(<span class="hljs-string">'dev'</span>, [<span class="hljs-string">'jsbeautifier'</span>]);
+};
+</pre>
+        </td>
+      </tr>
+    
+  </tbody>
+</table>
+
+  </div>
+</body>
+</html>

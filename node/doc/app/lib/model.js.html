@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>model.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" media="all" href="../../doc-style.css" />
+  <script src="../../doc-filelist.js"></script>
+  <script>
+    var relativeDir = "../../";
+    var thisFile = "app\\lib\\model.js";
+    var defaultSidebar = true;
+  </script>
+  <script src="../../doc-script.js"></script>
+
+</head>
+<body>
+  <div id="sidebar_wrapper">
+    <div id="sidebar_switch">
+      <span class="tree">Files</span>
+      <span class="headings">Headings</span>
+    </div>
+    <div id="tree"></div>
+    <div id="headings">
+
+    </div>
+  </div>
+  <div id="sidebar-toggle"></div>
+  <div id="container">
+    <div class="background highlight"></div>
+<table cellpadding="0" cellspacing="0">
+  <tbody>
+    
+      <tr>
+        <td class="docs">
+          <h1>model.js</h1>
+        </td>
+        <td class="code highlight"></td>
+      </tr>
+    
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-1" id="section-1"></a>
+</div>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript"><span class="hljs-keyword">var</span> uuid = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node-uuid'</span>);
+<span class="hljs-keyword">var</span> __ = <span class="hljs-built_in">require</span>(<span class="hljs-string">'underscore'</span>);
+<span class="hljs-keyword">var</span> <span class="hljs-keyword">async</span> = <span class="hljs-built_in">require</span>(<span class="hljs-string">'async'</span>);
+<span class="hljs-keyword">var</span> bcrypt = <span class="hljs-built_in">require</span>(<span class="hljs-string">'bcrypt'</span>);
+<span class="hljs-keyword">var</span> util = <span class="hljs-built_in">require</span>(<span class="hljs-string">'util'</span>);
+
+<span class="hljs-keyword">var</span> DBConfig = <span class="hljs-built_in">require</span>(__CONFIG__.app_base_path + <span class="hljs-string">'db-config'</span>);
+<span class="hljs-keyword">var</span> Logger = <span class="hljs-built_in">require</span>(__CONFIG__.app_base_path + <span class="hljs-string">'logger'</span>);
+
+<span class="hljs-keyword">var</span> AppError = <span class="hljs-built_in">require</span>(__CONFIG__.app_lib_path + <span class="hljs-string">'app-error'</span>);
+<span class="hljs-keyword">var</span> GetStatus = <span class="hljs-built_in">require</span>(__CONFIG__.app_lib_path + <span class="hljs-string">'status'</span>);
+<span class="hljs-keyword">var</span> MariaDb = <span class="hljs-built_in">require</span>(__CONFIG__.app_lib_path + <span class="hljs-string">'db-connector/mariadb'</span>);
+<span class="hljs-keyword">var</span> CassandraDb = <span class="hljs-built_in">require</span>(__CONFIG__.app_lib_path + <span class="hljs-string">'db-connector/cassandradb'</span>);
+
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-2" id="section-2"></a>
+</div>
+<p>Helpers</p>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript"><span class="hljs-keyword">var</span> DateUtil = <span class="hljs-built_in">require</span>(__CONFIG__.app_helper_path + <span class="hljs-string">'date-utility'</span>);
+<span class="hljs-keyword">var</span> Mailer = <span class="hljs-built_in">require</span>(__CONFIG__.app_helper_path + <span class="hljs-string">'mailer'</span>);
+<span class="hljs-keyword">var</span> Validator = <span class="hljs-built_in">require</span>(__CONFIG__.app_helper_path + <span class="hljs-string">'validator'</span>);
+<span class="hljs-keyword">var</span> Csv = <span class="hljs-built_in">require</span>(__CONFIG__.app_helper_path + <span class="hljs-string">'csv-helper'</span>);
+<span class="hljs-keyword">var</span> Zipper = <span class="hljs-built_in">require</span>(__CONFIG__.app_helper_path + <span class="hljs-string">'zipper'</span>);
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Model</span>(<span class="hljs-params">mProperties, objToBind, queryModifiers</span>) </span>{
+  <span class="hljs-keyword">this</span>.config = DBConfig[<span class="hljs-string">'mariadb'</span>];
+  <span class="hljs-keyword">this</span>.cassandraConfig = DBConfig[<span class="hljs-string">'cassandradb'</span>];
+  <span class="hljs-keyword">this</span>.db = <span class="hljs-keyword">new</span> MariaDb(<span class="hljs-keyword">this</span>.config);
+  <span class="hljs-keyword">this</span>.csDb = <span class="hljs-keyword">new</span> CassandraDb(<span class="hljs-keyword">this</span>.cassandraConfig);
+  <span class="hljs-keyword">this</span>.getStatusCode = GetStatus;
+  <span class="hljs-keyword">this</span>.queryModifiers = queryModifiers;
+  <span class="hljs-keyword">this</span>.buildObject(mProperties, objToBind);
+
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-3" id="section-3"></a>
+</div>
+<p>Helpers.</p>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript">  <span class="hljs-keyword">this</span>.dateUtil = DateUtil;
+  <span class="hljs-keyword">this</span>.mailer = Mailer;
+  <span class="hljs-keyword">this</span>.csvHelper = <span class="hljs-keyword">new</span> Csv();
+  <span class="hljs-keyword">this</span>.validator = <span class="hljs-keyword">new</span> Validator(mProperties);
+  <span class="hljs-keyword">this</span>.zipper = <span class="hljs-keyword">new</span> Zipper();
+}
+
+Model.prototype.query = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">objQuery</span>) </span>{
+  <span class="hljs-keyword">var</span> self = <span class="hljs-keyword">this</span>;  
+  <span class="hljs-keyword">var</span> beforeEvents = objQuery.before;
+  <span class="hljs-keyword">if</span> (__.isArray(beforeEvents) &amp;&amp; beforeEvents.length !== <span class="hljs-number">0</span>) {
+    <span class="hljs-keyword">this</span>.currentData = objQuery.data;
+    <span class="hljs-keyword">async</span>.waterfall(beforeEvents, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">err</span>) </span>{
+      <span class="hljs-keyword">if</span> (err) {
+        objQuery.cb(err);
+        <span class="hljs-keyword">return</span>;
+      }
+      runQuery(objQuery, self);
+    });
+  } <span class="hljs-keyword">else</span> {
+    runQuery(objQuery, self);
+  }
+};
+
+Model.prototype.getActiveID = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+  <span class="hljs-keyword">return</span> <span class="hljs-number">1</span>;
+};
+
+Model.prototype.getResults = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">objQuery</span>) </span>{
+  <span class="hljs-keyword">var</span> cbProcess = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">err, data</span>) </span>{
+    processError(err, objQuery);
+    objQuery.cb(err, data);
+  };
+  <span class="hljs-keyword">if</span> (objQuery.isCassandra) {
+    <span class="hljs-keyword">this</span>.csDb.getResults(objQuery, cbProcess);
+  } <span class="hljs-keyword">else</span> {
+    <span class="hljs-keyword">this</span>.db.getResults(objQuery, cbProcess);
+  }
+};
+
+Model.prototype.getResult = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">objQuery</span>) </span>{
+  <span class="hljs-keyword">var</span> cbProcess = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">err, data</span>) </span>{
+    processError(err, objQuery);
+    objQuery.cb(err, data);
+  };
+  <span class="hljs-keyword">if</span> (objQuery.isCassandra) {
+    <span class="hljs-keyword">this</span>.csDb.getResult(objQuery, cbProcess);
+  } <span class="hljs-keyword">else</span> {
+    <span class="hljs-keyword">this</span>.db.getResult(objQuery, cbProcess);
+  }
+};
+
+Model.prototype.buildObject = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">properties, objToBind</span>) </span>{
+  <span class="hljs-keyword">if</span> (!objToBind) {
+    <span class="hljs-keyword">return</span>;
+  }
+  <span class="hljs-keyword">var</span> propValue = <span class="hljs-literal">null</span>;
+  <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> propertyName <span class="hljs-keyword">in</span> properties) {
+    propValue = objToBind[propertyName];
+    <span class="hljs-keyword">if</span> (propValue) {
+      <span class="hljs-keyword">this</span>[propertyName] = propValue;
+    }
+  }
+};
+
+Model.prototype.validateProp = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">obj, propsToValidate</span>) </span>{
+  <span class="hljs-keyword">if</span> (!<span class="hljs-keyword">this</span>.validator.isValid(obj, propsToValidate)) {
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.validator
+      .getErrors();
+  }
+  <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
+};
+
+Model.prototype.validate = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">obj</span>) </span>{
+  <span class="hljs-keyword">if</span> (!<span class="hljs-keyword">this</span>.validator.isValid(obj, <span class="hljs-keyword">this</span>.properties)) {
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.validator
+      .getErrors();
+  }
+  <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
+};
+
+Model.prototype.beginTransaction = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">cb</span>) </span>{
+  <span class="hljs-keyword">this</span>.db.beginTransaction(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">err, data</span>) </span>{
+    processError(err);
+    <span class="hljs-keyword">return</span> cb(err, data);
+  });
+};
+
+Model.prototype.commitTransaction = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">transactionID, cb</span>) </span>{
+  <span class="hljs-keyword">this</span>.db.commitTransaction(transactionID, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">err, data</span>) </span>{
+    processError(err);
+    <span class="hljs-keyword">return</span> cb(err, data);
+  });
+};
+
+Model.prototype.rollbackTransaction = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">transactionID, cb</span>) </span>{
+  <span class="hljs-keyword">this</span>.db.rollbackTransaction(transactionID, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">err, data</span>) </span>{
+    processError(err);
+    <span class="hljs-keyword">if</span> (cb) {
+      <span class="hljs-keyword">return</span> cb(err, data);
+    }
+  });
+};
+
+Model.prototype.handleTransactionEnd = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">err, transactionID, cb</span>) </span>{
+  <span class="hljs-keyword">if</span> (err) {
+    <span class="hljs-keyword">this</span>.rollbackTransaction(transactionID, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">rollBackErr</span>) </span>{
+      <span class="hljs-keyword">if</span> (rollBackErr) {
+        <span class="hljs-keyword">return</span> cb(rollBackErr);
+      }
+      <span class="hljs-keyword">return</span> cb(err);
+    });
+    <span class="hljs-keyword">return</span>;
+  } <span class="hljs-keyword">else</span> {
+    <span class="hljs-keyword">this</span>.commitTransaction(transactionID, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">err</span>) </span>{
+      <span class="hljs-keyword">return</span> cb(err);
+    });
+  }
+};
+
+Model.prototype.queries = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">objQuery</span>) </span>{
+  runQuery(objQuery, <span class="hljs-keyword">this</span>);
+};
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">processError</span>(<span class="hljs-params">err, objQuery</span>) </span>{<span class="hljs-meta">
+  'use strict'</span>;
+  <span class="hljs-keyword">if</span> (err &amp;&amp; err.isInternalErr) {
+    err.writeToLog();
+    <span class="hljs-keyword">if</span> (objQuery) {
+      <span class="hljs-keyword">var</span> strError = <span class="hljs-string">'Query Failed : '</span> + objQuery.query + <span class="hljs-string">' \n'</span>;
+      <span class="hljs-keyword">if</span> (objQuery.hasOwnProperty(<span class="hljs-string">'data'</span>)) {
+        strError += <span class="hljs-string">'Data : '</span> + util.inspect(objQuery.data, {
+          <span class="hljs-attr">depth</span>: <span class="hljs-number">4</span>
+        }) + <span class="hljs-string">'\n'</span>;
+      }
+      strError += <span class="hljs-string">'-----------\n\n'</span>;
+      Logger.writeLogErr(strError);
+    }
+  }
+}
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">runQuery</span>(<span class="hljs-params">objQuery, self</span>) </span>{
+  <span class="hljs-keyword">var</span> cbProcess = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">err, data</span>) </span>{
+    processError(err, objQuery);
+    objQuery.cb(err, data);
+  };
+  <span class="hljs-keyword">if</span> (objQuery.isCassandra) {
+    self.csDb.query(objQuery, cbProcess);
+  } <span class="hljs-keyword">else</span> {
+    <span class="hljs-keyword">if</span> (objQuery.isMultiple) {
+      self.db.queries(objQuery, cbProcess);
+    } <span class="hljs-keyword">else</span> {
+      self.db.query(objQuery, cbProcess);
+    }
+  }
+}
+
+<span class="hljs-built_in">module</span>.exports = Model;
+
+</pre>
+        </td>
+      </tr>
+    
+  </tbody>
+</table>
+
+  </div>
+</body>
+</html>

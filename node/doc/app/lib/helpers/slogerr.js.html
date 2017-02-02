@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>slogerr.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" media="all" href="../../../doc-style.css" />
+  <script src="../../../doc-filelist.js"></script>
+  <script>
+    var relativeDir = "../../../";
+    var thisFile = "app\\lib\\helpers\\slogerr.js";
+    var defaultSidebar = true;
+  </script>
+  <script src="../../../doc-script.js"></script>
+
+</head>
+<body>
+  <div id="sidebar_wrapper">
+    <div id="sidebar_switch">
+      <span class="tree">Files</span>
+      <span class="headings">Headings</span>
+    </div>
+    <div id="tree"></div>
+    <div id="headings">
+
+    </div>
+  </div>
+  <div id="sidebar-toggle"></div>
+  <div id="container">
+    <div class="background highlight"></div>
+<table cellpadding="0" cellspacing="0">
+  <tbody>
+    
+      <tr>
+        <td class="docs">
+          <h1>slogerr.js</h1>
+        </td>
+        <td class="code highlight"></td>
+      </tr>
+    
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-1" id="section-1"></a>
+</div>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript"><span class="hljs-keyword">var</span> SlogerrConfig = <span class="hljs-built_in">require</span>(__CONFIG__.app_base_path + <span class="hljs-string">'slogerr-config'</span>);
+<span class="hljs-keyword">var</span> request = <span class="hljs-built_in">require</span>(<span class="hljs-string">'request'</span>);
+
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-2" id="section-2"></a>
+</div>
+<div class="dox">
+<div class="summary">
+<p>A module that will log the errors into the slogerr.</p>
+</div>
+<div class="body">
+</div>
+<div class="details">
+<div class="dox_tag_title">Params</div>
+<div class="dox_tag_detail">
+<span class="dox_tag_name">req</span>
+</div>
+<div class="dox_tag_detail">
+<span class="dox_tag_name">res</span>
+</div>
+</div>
+</div>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript">
+<span class="hljs-keyword">var</span> Slogerr = {
+  <span class="hljs-attr">log</span>: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">logMessage, stackTrace, severity, cb</span>) </span>{
+    <span class="hljs-keyword">var</span> dataToSend = SlogerrConfig.data;
+    dataToSend.LogMessage = logMessage;
+    dataToSend.StackTrace = stackTrace;
+    dataToSend.Severity = severity;
+    <span class="hljs-keyword">var</span> options = {
+      <span class="hljs-attr">url</span>: SlogerrConfig.url,
+      <span class="hljs-attr">method</span>: SlogerrConfig.method,
+      <span class="hljs-attr">headers</span>: SlogerrConfig.headers,
+      <span class="hljs-attr">body</span>: <span class="hljs-built_in">JSON</span>.stringify(dataToSend)
+    };
+    request(options, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">err, response, body</span>) </span>{
+      <span class="hljs-keyword">if</span> (cb) {
+        <span class="hljs-keyword">return</span> cb(err, response, body);
+      }
+    });
+  }
+};
+
+<span class="hljs-built_in">module</span>.exports = Slogerr;
+
+</pre>
+        </td>
+      </tr>
+    
+  </tbody>
+</table>
+
+  </div>
+</body>
+</html>

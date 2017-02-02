@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>date-utility.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" media="all" href="../../../doc-style.css" />
+  <script src="../../../doc-filelist.js"></script>
+  <script>
+    var relativeDir = "../../../";
+    var thisFile = "app\\lib\\helpers\\date-utility.js";
+    var defaultSidebar = true;
+  </script>
+  <script src="../../../doc-script.js"></script>
+
+</head>
+<body>
+  <div id="sidebar_wrapper">
+    <div id="sidebar_switch">
+      <span class="tree">Files</span>
+      <span class="headings">Headings</span>
+    </div>
+    <div id="tree"></div>
+    <div id="headings">
+
+    </div>
+  </div>
+  <div id="sidebar-toggle"></div>
+  <div id="container">
+    <div class="background highlight"></div>
+<table cellpadding="0" cellspacing="0">
+  <tbody>
+    
+      <tr>
+        <td class="docs">
+          <h1>date-utility.js</h1>
+        </td>
+        <td class="code highlight"></td>
+      </tr>
+    
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-1" id="section-1"></a>
+</div>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript"><span class="hljs-keyword">var</span> moment = <span class="hljs-built_in">require</span>(<span class="hljs-string">'moment'</span>);
+<span class="hljs-keyword">var</span> momentTimezone = <span class="hljs-built_in">require</span>(<span class="hljs-string">'moment-timezone'</span>);
+
+<span class="hljs-keyword">var</span> DateUtil = {
+  <span class="hljs-attr">toMySQLDateTime</span>: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">dt</span>) </span>{
+    <span class="hljs-keyword">if</span> (!dt) {
+      dt = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Date</span>();
+    }
+    <span class="hljs-keyword">return</span> dt.toISOString().slice(<span class="hljs-number">0</span>, <span class="hljs-number">19</span>).replace(<span class="hljs-string">'T'</span>, <span class="hljs-string">' '</span>);
+  },
+  <span class="hljs-attr">toJSDateTime</span>: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">dtStr</span>) </span>{
+    <span class="hljs-keyword">if</span> (dtStr === <span class="hljs-literal">undefined</span>) {
+      <span class="hljs-keyword">return</span> <span class="hljs-literal">null</span>;
+    }
+    <span class="hljs-keyword">var</span> t = dtStr.split(<span class="hljs-regexp">/[- :]/</span>);
+
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-2" id="section-2"></a>
+</div>
+<p>when t[3], t[4] and t[5] are missing they defaults to zero</p>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript">    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Date</span>(t[<span class="hljs-number">0</span>], t[<span class="hljs-number">1</span>] - <span class="hljs-number">1</span>, t[<span class="hljs-number">2</span>], t[<span class="hljs-number">3</span>] || <span class="hljs-number">0</span>, t[<span class="hljs-number">4</span>] || <span class="hljs-number">0</span>, t[<span class="hljs-number">5</span>] || <span class="hljs-number">0</span>);
+  },
+  <span class="hljs-attr">addHoursToDate</span>: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">dt, hoursToAdd</span>) </span>{
+    <span class="hljs-keyword">if</span> (!dt) {
+      dt = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Date</span>();
+    }
+    dt.setHours(dt.getHours() + hoursToAdd);
+    <span class="hljs-keyword">return</span> dt;
+  },
+  <span class="hljs-attr">UTCToCurrentTime</span>: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">dt</span>) </span>{
+    <span class="hljs-keyword">var</span> str = dt.toLocaleString() + <span class="hljs-string">' UTC'</span>;
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Date</span>(str);
+  },  
+  <span class="hljs-attr">toMySQLDateTimeWithoutISO</span>: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">dt</span>) </span>{
+    <span class="hljs-keyword">if</span> (!dt) {
+      dt = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Date</span>();
+    }
+    <span class="hljs-keyword">return</span> moment(dt).format(<span class="hljs-string">'YYYY-MM-DD HH:mm:ss'</span>);
+  },
+  <span class="hljs-attr">convertTimezoneBasedTimeToUTC</span>: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">dt, timezone</span>) </span>{
+    <span class="hljs-keyword">if</span>(!dt) {
+      dt = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Date</span>();
+    }
+    <span class="hljs-keyword">return</span> momentTimezone.tz(dt, timezone).utc().format(<span class="hljs-string">'YYYY-MM-DD HH:mm:ss'</span>);
+  }
+};
+
+<span class="hljs-built_in">module</span>.exports = DateUtil;
+
+</pre>
+        </td>
+      </tr>
+    
+  </tbody>
+</table>
+
+  </div>
+</body>
+</html>

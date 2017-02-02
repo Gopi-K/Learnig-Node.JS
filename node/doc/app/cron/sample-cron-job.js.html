@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>sample-cron-job.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" media="all" href="../../doc-style.css" />
+  <script src="../../doc-filelist.js"></script>
+  <script>
+    var relativeDir = "../../";
+    var thisFile = "app\\cron\\sample-cron-job.js";
+    var defaultSidebar = true;
+  </script>
+  <script src="../../doc-script.js"></script>
+
+</head>
+<body>
+  <div id="sidebar_wrapper">
+    <div id="sidebar_switch">
+      <span class="tree">Files</span>
+      <span class="headings">Headings</span>
+    </div>
+    <div id="tree"></div>
+    <div id="headings">
+
+    </div>
+  </div>
+  <div id="sidebar-toggle"></div>
+  <div id="container">
+    <div class="background highlight"></div>
+<table cellpadding="0" cellspacing="0">
+  <tbody>
+    
+      <tr>
+        <td class="docs">
+          <h1>sample-cron-job.js</h1>
+        </td>
+        <td class="code highlight"></td>
+      </tr>
+    
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-1" id="section-1"></a>
+</div>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript"><span class="hljs-comment">/* global __CONFIG__ */</span>
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-2" id="section-2"></a>
+</div>
+<div class="dox">
+<div class="summary">
+<p>Runs the tag background syncing process for records that have
+failed earlier in Cassandra.</p>
+</div>
+<div class="body">
+</div>
+</div>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript"><span class="hljs-keyword">var</span> util = <span class="hljs-built_in">require</span>(<span class="hljs-string">'util'</span>);
+<span class="hljs-keyword">var</span> CronJob = <span class="hljs-built_in">require</span>(<span class="hljs-string">'cron'</span>).CronJob;
+<span class="hljs-keyword">var</span> <span class="hljs-keyword">async</span> = <span class="hljs-built_in">require</span>(<span class="hljs-string">'async'</span>);
+<span class="hljs-keyword">var</span> logger = <span class="hljs-built_in">require</span>(__CONFIG__.app_base_path + <span class="hljs-string">'logger'</span>);
+<span class="hljs-keyword">var</span> __ = <span class="hljs-built_in">require</span>(<span class="hljs-string">'underscore'</span>);
+
+<span class="hljs-keyword">var</span> SampleCronJob = (<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">doNothing</span>(<span class="hljs-params"></span>) </span>{
+    
+  } 
+  
+  <span class="hljs-keyword">return</span> {
+    <span class="hljs-attr">doNothing</span> : doNothing
+  };
+}());
+
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-3" id="section-3"></a>
+</div>
+<p>Runs a dummy background sync.</p>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript"><span class="hljs-keyword">var</span> job = <span class="hljs-keyword">new</span> CronJob({
+  <span class="hljs-attr">cronTime</span>: __CONFIG__.cron_time,
+  <span class="hljs-attr">onTick</span>: SampleCronJob.doNothing,
+  <span class="hljs-attr">start</span>: <span class="hljs-literal">true</span>
+});
+
+
+<span class="hljs-built_in">module</span>.exports = SampleCronJob;
+
+</pre>
+        </td>
+      </tr>
+    
+  </tbody>
+</table>
+
+  </div>
+</body>
+</html>

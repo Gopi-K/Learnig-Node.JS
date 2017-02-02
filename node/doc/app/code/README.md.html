@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>README.md</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" media="all" href="../../doc-style.css" />
+  <script src="../../doc-filelist.js"></script>
+  <script>
+    var relativeDir = "../../";
+    var thisFile = "app\\code\\README.md";
+    var defaultSidebar = true;
+  </script>
+  <script src="../../doc-script.js"></script>
+
+</head>
+<body>
+  <div id="sidebar_wrapper">
+    <div id="sidebar_switch">
+      <span class="tree">Files</span>
+      <span class="headings">Headings</span>
+    </div>
+    <div id="tree"></div>
+    <div id="headings">
+
+      <div class="heading h1">
+        <a href="#space-for-your-code">Space for your code.</a>
+      </div>
+
+      <div class="heading h2">
+        <a href="#custom-code-structure">Custom code structure</a>
+      </div>
+
+      <div class="heading h3">
+        <a href="#sample-js-file">Sample JS file</a>
+      </div>
+
+      <div class="heading h3">
+        <a href="#sample-folder-structure">Sample folder structure</a>
+      </div>
+
+      <div class="heading h2">
+        <a href="#reusing-code">Reusing code</a>
+      </div>
+
+      <div class="heading h2">
+        <a href="#file-naming-conventions">File naming conventions.</a>
+      </div>
+
+      <div class="heading h2">
+        <a href="#naming-conventions">Naming conventions</a>
+      </div>
+
+      <div class="heading h2">
+        <a href="#constant-usage">Constant usage</a>
+      </div>
+
+      <div class="heading h3">
+        <a href="#usage">Usage</a>
+      </div>
+
+    </div>
+  </div>
+  <div id="sidebar-toggle"></div>
+  <div id="container">
+    <div class="docs markdown"><div class="pilwrap" id="space-for-your-code">
+  <h1>
+    <a href="#space-for-your-code" name="space-for-your-code" class="pilcrow"></a>
+Space for your code.
+  </h1>
+</div>
+<p>Check <em>DEFAULT.md</em> for a template of a controller, model and service.</p>
+<div class="pilwrap" id="custom-code-structure">
+  <h2>
+    <a href="#custom-code-structure" name="custom-code-structure" class="pilcrow"></a>
+Custom code structure
+  </h2>
+</div>
+<ol>
+<li>Controllers, Services and Models are grouped together based on their entity.</li>
+<li>Third party module requires at the top of the file, and then put internal module includes.</li>
+<li>Internal module variables should always be written in Pascal case.</li>
+<li><code>'use strict';</code> should be added at the top of all JavaScript files.</li>
+<li>All entities created will always be in singular, and never in plural. So you'll have <em>user</em> instead of <em>users</em>,</li>
+<li>Custom controllers will inherit AppController (<code>app-controller.js</code>)</li>
+<li>Custom services will inherit AppService (<code>app-service.js</code>)</li>
+<li>Custom models will inherit AppModel(<code>app-model.js</code>)</li>
+</ol>
+<div class="pilwrap" id="sample-js-file">
+  <h3>
+    <a href="#sample-js-file" name="sample-js-file" class="pilcrow"></a>
+Sample JS file
+  </h3>
+</div>
+<pre><code class="js"><span class="hljs-meta">'use strict'</span>;
+
+<span class="hljs-comment">// Third party modules</span>
+<span class="hljs-keyword">var</span> fs = <span class="hljs-built_in">require</span>(<span class="hljs-string">'fs'</span>);
+<span class="hljs-keyword">var</span> <span class="hljs-keyword">async</span> = <span class="hljs-built_in">require</span>(<span class="hljs-string">'async'</span>);
+<span class="hljs-keyword">var</span> util = <span class="hljs-built_in">require</span>(<span class="hljs-string">'util'</span>);
+
+<span class="hljs-comment">// Internal modules</span>
+<span class="hljs-keyword">var</span> AppController = <span class="hljs-built_in">require</span>(__CONFIG__.app_code_path + <span class="hljs-string">'app-controller.js'</span>);
+<span class="hljs-keyword">var</span> GetStatus = <span class="hljs-built_in">require</span>(__CONFIG__.app_lib_path + <span class="hljs-string">'status.js'</span>);
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">UserController</span>(<span class="hljs-params">app</span>) </span>{
+  AppController.call(<span class="hljs-keyword">this</span>); 
+  
+  app.httpGet({ 
+    <span class="hljs-attr">url</span> : <span class="hljs-string">'/user/:id'</span>,
+    <span class="hljs-attr">route</span> : <span class="hljs-keyword">this</span>.getUser.bind(<span class="hljs-keyword">this</span>),
+    <span class="hljs-attr">isPublic</span> : <span class="hljs-literal">true</span>,
+    <span class="hljs-attr">isAdmin</span> : <span class="hljs-literal">false</span>
+  });
+}
+
+util.inherits(UserController, AppController);
+
+UserController.prototype.getUser = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">request, response</span>) </span>{}
+
+<span class="hljs-built_in">module</span>.exports = UserController;
+</code></pre>
+<div class="pilwrap" id="sample-folder-structure">
+  <h3>
+    <a href="#sample-folder-structure" name="sample-folder-structure" class="pilcrow"></a>
+Sample folder structure
+  </h3>
+</div>
+<pre><code>code 
+|
+|-user
+    |-user-controller.js
+    |-user-service.js
+    |-user-model.js
+|-task
+    |-task-controller.js
+    |-task-service.js
+    |-task-model.js    
+</code></pre>
+<div class="pilwrap" id="reusing-code">
+  <h2>
+    <a href="#reusing-code" name="reusing-code" class="pilcrow"></a>
+Reusing code
+  </h2>
+</div>
+<p>Code that you want to reuse between your services, models or controllers will be put inside either -</p>
+<ul>
+<li>app-controller.js</li>
+<li>app-model.js</li>
+<li>app-service.js</li>
+</ul>
+<div class="pilwrap" id="file-naming-conventions">
+  <h2>
+    <a href="#file-naming-conventions" name="file-naming-conventions" class="pilcrow"></a>
+File naming conventions.
+  </h2>
+</div>
+<p>All file names will be written in the following format, for the <strong>user</strong> entity -</p>
+<ul>
+<li>user-controller.js</li>
+<li>user-service.js</li>
+<li>user-model.js</li>
+</ul>
+<p>Lower case letters, and words will be seperated by hyphen.</p>
+<p><strong>Also note that entities will never be in plural.</strong></p>
+<div class="pilwrap" id="naming-conventions">
+  <h2>
+    <a href="#naming-conventions" name="naming-conventions" class="pilcrow"></a>
+Naming conventions
+  </h2>
+</div>
+<ol>
+<li>Model variables will always start with 'm' - mUser, mCountry etc</li>
+<li>Service variables will always sttart with 's' - sUser, sCountry etc</li>
+<li>Controller, service and model names will also be in singular.</li>
+</ol>
+<div class="pilwrap" id="constant-usage">
+  <h2>
+    <a href="#constant-usage" name="constant-usage" class="pilcrow"></a>
+Constant usage
+  </h2>
+</div>
+<p>Constants / Functions have been created to fetch the following values -</p>
+<ol>
+<li><code>app_base_path</code> - Returns the path to the app folder</li>
+<li><code>app_code_path</code> - Returns the path the the app/code folder</li>
+<li><code>app_lib_path</code> - Returns the path to the app/lib folder</li>
+<li><code>app_helper_path</code> - Returns the path to the app/lib/helpers folder</li>
+<li><code>getFilesFolderPath</code> - (<em>Function</em>) Returns the path to the files folder in the base of the application.</li>
+<li><code>getUploadsFolderPath</code> - (<em>Function</em>) Returns the path to the upload folder in the base of the application.</li>
+<li><code>getLogsFolderPath</code> - (<em>Function</em>) Returns the path to the application's log folder</li>
+</ol>
+<div class="pilwrap" id="usage">
+  <h3>
+    <a href="#usage" name="usage" class="pilcrow"></a>
+Usage
+  </h3>
+</div>
+<pre><code class="js"><span class="hljs-keyword">var</span> codePath = __CONFIG__.app_code_path;
+<span class="hljs-keyword">var</span> uploadsFolderPath = __CONFIG__.getUploadsFolderPath();
+</code></pre>
+</div>
+  </div>
+</body>
+</html>

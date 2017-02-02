@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>csv-helper.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" media="all" href="../../../doc-style.css" />
+  <script src="../../../doc-filelist.js"></script>
+  <script>
+    var relativeDir = "../../../";
+    var thisFile = "app\\lib\\helpers\\csv-helper.js";
+    var defaultSidebar = true;
+  </script>
+  <script src="../../../doc-script.js"></script>
+
+</head>
+<body>
+  <div id="sidebar_wrapper">
+    <div id="sidebar_switch">
+      <span class="tree">Files</span>
+      <span class="headings">Headings</span>
+    </div>
+    <div id="tree"></div>
+    <div id="headings">
+
+    </div>
+  </div>
+  <div id="sidebar-toggle"></div>
+  <div id="container">
+    <div class="background highlight"></div>
+<table cellpadding="0" cellspacing="0">
+  <tbody>
+    
+      <tr>
+        <td class="docs">
+          <h1>csv-helper.js</h1>
+        </td>
+        <td class="code highlight"></td>
+      </tr>
+    
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-1" id="section-1"></a>
+</div>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript"><span class="hljs-keyword">var</span> csv = <span class="hljs-built_in">require</span>(<span class="hljs-string">'csv'</span>);
+<span class="hljs-keyword">var</span> fs = <span class="hljs-built_in">require</span>(<span class="hljs-string">'fs'</span>);
+<span class="hljs-keyword">var</span> <span class="hljs-keyword">async</span> = <span class="hljs-built_in">require</span>(<span class="hljs-string">'async'</span>);
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">csvHelper</span>(<span class="hljs-params"></span>) </span>{}
+
+csvHelper.prototype.readCsvHelper = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">path, cb</span>) </span>{
+  <span class="hljs-keyword">var</span> fileStream = fs.createReadStream(path);
+  <span class="hljs-keyword">var</span> parser = csv.parse({
+    <span class="hljs-string">'columns'</span>: <span class="hljs-literal">true</span>
+  }, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">err, data</span>) </span>{
+    <span class="hljs-keyword">if</span> (err) {
+      cb(err);
+    }
+    cb(<span class="hljs-literal">null</span>, data);
+
+  });
+  fileStream.pipe(parser);
+};
+
+csvHelper.prototype.readObjCreateCsv = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">arrayToRead, cb</span>) </span>{
+  csv.stringify(arrayToRead, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">err, output</span>) </span>{
+    <span class="hljs-keyword">if</span> (err) {
+      <span class="hljs-keyword">return</span> cb(err);
+    }
+    cb(<span class="hljs-literal">null</span>, output);
+  });
+};
+
+csvHelper.prototype.getArrayForCsv = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">data, cb, properties</span>) </span>{
+  <span class="hljs-keyword">var</span> baseArray = [];
+  <span class="hljs-keyword">var</span> labelsArray = [];
+  <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> index <span class="hljs-keyword">in</span> data) {
+    <span class="hljs-keyword">var</span> valuesArray = [];
+    <span class="hljs-keyword">var</span> element = data[index];
+    <span class="hljs-keyword">if</span> (labelsArray.length === <span class="hljs-number">0</span>) {
+      <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> key <span class="hljs-keyword">in</span> element) {
+        <span class="hljs-keyword">if</span> (properties) {
+          <span class="hljs-keyword">var</span> csvName = getPropertyCsvName(key, properties);
+          <span class="hljs-keyword">if</span> (csvName) {
+            labelsArray.push(csvName);
+          } <span class="hljs-keyword">else</span> {
+            labelsArray.push(key);
+          }
+
+        } <span class="hljs-keyword">else</span> {
+          labelsArray.push(key);
+        }
+
+      }
+      baseArray.push(labelsArray);
+    }
+    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> key2 <span class="hljs-keyword">in</span> element) {
+      valuesArray.push(element[key2]);
+    }
+    baseArray.push(valuesArray);
+  }
+  cb(<span class="hljs-literal">null</span>, baseArray);
+};
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">getPropertyCsvName</span>(<span class="hljs-params">key, props</span>) </span>{
+  <span class="hljs-keyword">if</span> (props.hasOwnProperty(key)) {
+    <span class="hljs-keyword">if</span> (props[key].hasOwnProperty(<span class="hljs-string">'csvName'</span>)) {
+      <span class="hljs-keyword">return</span> props[key][<span class="hljs-string">'csvName'</span>];
+    } <span class="hljs-keyword">else</span> {
+      <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
+    }
+  } <span class="hljs-keyword">else</span> {
+    <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
+  }
+}
+
+csvHelper.prototype.writeCsvStringToFile = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">data, fileName,
+  cb</span>) </span>{  
+  fs.writeFile(__CONFIG__.getFilesFolderPath() + <span class="hljs-string">'/'</span> + fileName,
+    data,
+    <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">err</span>) </span>{
+      <span class="hljs-keyword">if</span> (err) {
+        <span class="hljs-keyword">return</span> cb(err);
+      } <span class="hljs-keyword">else</span> {
+        <span class="hljs-keyword">return</span> cb(<span class="hljs-literal">null</span>);
+      }
+    });
+};
+
+
+csvHelper.prototype.getCSV = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">data, fileName, cb, properties</span>) </span>{
+  <span class="hljs-keyword">var</span> that = <span class="hljs-keyword">this</span>;
+  <span class="hljs-keyword">async</span>.waterfall([
+    <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">wfcb</span>) </span>{
+      that.getArrayForCsv(data, wfcb, properties);
+    },
+    <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">array, wfcb</span>) </span>{
+      that.readObjCreateCsv(array, wfcb);
+    },
+    <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">stringToWrite, wfcb</span>) </span>{
+      that.writeCsvStringToFile(stringToWrite, fileName, wfcb);
+    }
+  ], <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">err, data</span>) </span>{
+    cb(err, data);
+  });
+};
+<span class="hljs-built_in">module</span>.exports = csvHelper;
+
+</pre>
+        </td>
+      </tr>
+    
+  </tbody>
+</table>
+
+  </div>
+</body>
+</html>

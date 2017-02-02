@@ -1,0 +1,9 @@
+Hi <%= user.username %>,
+
+This is a sample template. Hello World. 
+Your log in email is <%=user.emailID %>.
+		
+<%=email.baseURL %>reset-password?token=<%= user.userID  %>Choose your password here.
+
+Thank you,
+<%= email.from_name %> 
